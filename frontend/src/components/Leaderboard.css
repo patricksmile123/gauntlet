@@ -1,0 +1,32 @@
+.leaderboardDiv {
+    h1 {
+        font-size: 3rem;
+        margin-top: 2%;
+        color: #ffffff;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .leaderboardTable {
+        width: 66%;
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse: collapse;
+        border-spacing: 0;
+        th {
+            background-color: #5c5470;
+            color: #ffffff;
+            font-size: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 0.5rem;
+            border: 2px solid #dbd8e3;
+            margin-bottom: 0;
+        }
+        td {
+            background-color: #352f44;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 0.5rem;
+            border: 2px solid #dbd8e3;
+        }
+    }
+}

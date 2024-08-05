@@ -1,0 +1,1 @@
+flask --app server shell (need this to  create the server shell)
