@@ -1,1 +1,0 @@
-from thegauntlet import app

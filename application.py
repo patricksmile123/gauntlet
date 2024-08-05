@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask_login import LoginManager
-from .db import db
+from db import db
 
 
 app = Flask(__name__, static_folder='build')
@@ -17,10 +17,10 @@ app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'data', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
 # app.config['MAX_CONTENT_LENGTH'] = 8
 
-from thegauntlet.models import *
+from models import *
 
 @app.shell_context_processor
 def make_shell_context():
     return dict(db=db, User=User, Game=Game, LoginManager=LoginManager, WordleGuess=WordleGuess, )
 
-from thegauntlet import server
+import server

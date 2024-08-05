@@ -1,22 +1,16 @@
 from ast import parse
-from email.policy import default
-from flask import Flask, request, jsonify, Response, session, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 import random
-import uuid
-from thegauntlet.models import User, Game, WordleGuess
-from thegauntlet import app
-from flask_cors import CORS, cross_origin
-from thegauntlet.forms import RegistrationForm, LoginForm
+from models import User, Game, WordleGuess
+from application import app
+from forms import RegistrationForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from thegauntlet.db import db
-from flask_wtf.csrf import generate_csrf
+from db import db
 import jwt
 from datetime import datetime
 import traceback
 from sqlalchemy import text
 
-
-CORS(app)
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
 LEADERBOARD_QUERY = open("leaderboard.sql").read()
@@ -64,7 +58,6 @@ def createGame():
 
 
 @app.route('/api/guess', methods=['POST'])
-@cross_origin()
 def guess():
     authoHeader = request.headers.get('authorization')
     token = authoHeader.split(" ")[1]
