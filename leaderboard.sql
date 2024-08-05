@@ -5,11 +5,11 @@ WITH scored_games (game_id, user_id, score, start_time, end_time) as (
     WHERE g.outcome = 'win'
     GROUP BY g.game_id, g.user_id, g.start_time, g.end_time
 )
-SELECT u.firstname, avg(g.score) as score, avg(unixepoch(g.end_time)) - avg(unixepoch(g.start_time)) as avg_time,
-rank() over (order by avg(g.score) asc, avg(unixepoch(g.end_time)) - avg(unixepoch(g.start_time)) asc) as rank
+SELECT u.firstname, avg(g.score) as score, avg(strftime('%s', g.end_time)) - avg(strftime('%s', g.start_time)) as avg_time,
+rank() over (order by avg(g.score) asc, avg(strftime('%s', g.end_time)) - avg(strftime('%s', g.start_time)) asc) as rank
 FROM users u
 INNER JOIN scored_games g on (
 	u.user_id = g.user_id
 )
 GROUP by u.firstname
-ORDER by avg(g.score), avg(unixepoch(g.end_time)) - avg(unixepoch(g.start_time))
+ORDER by avg(g.score), avg(strftime('%s', g.end_time)) - avg(strftime('%s', g.start_time))
