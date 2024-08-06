@@ -2,7 +2,6 @@ WITH scored_games (game_id, user_id, score, start_time, end_time) as (
     SELECT g.game_id, g.user_id, count(1) as score, g.start_time, g.end_time
     from games g 
     INNER JOIN wordle_guess w on w.game_id = g.game_id
-    WHERE g.outcome = 'win'
     GROUP BY g.game_id, g.user_id, g.start_time, g.end_time
 )
 SELECT u.firstname, avg(g.score) as score, avg(strftime('%s', g.end_time)) - avg(strftime('%s', g.start_time)) as avg_time,
