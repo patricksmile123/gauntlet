@@ -10,9 +10,9 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(20), nullable=False, unique=True, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
     db.relationship('Game', backref='user_id', lazy='dynamic')
-    
-    
-    
+    db.relationship('WordleAchievements', backref='user_id', lazy='dynamic')
+    achievements = relationship('Achievement', secondary="user_achievements", back_populates='users')
+ 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password, salt_length=32)
 
@@ -35,4 +35,11 @@ class WordleGuess(db.Model):
     guess = db.Column(db.String(10), nullable=False)
     guess_time = db.Column(db.DateTime, nullable=False)
 
+class WordleAchievements(db.Model):
+    __tablename__ = 'achievements'
+    achievement_id = db.Column(db.Integer, primary_key = True, unique= True, nullable = False)
+    achievement_name = db.Column(db.String(50), nullable=False)
+    date_achieved = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    db.relationship('User', secondary='user_achievements', back_populates='achievements')
 
