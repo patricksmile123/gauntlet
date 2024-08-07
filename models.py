@@ -11,7 +11,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     db.relationship('Game', backref='user_id', lazy='dynamic')
     db.relationship('WordleAchievements', backref='user_id', lazy='dynamic')
-    achievements = relationship('Achievement', secondary="user_achievements", back_populates='users')
+    db.relationship('Achievement', secondary="user_achievements", back_populates='users')
  
     def set_password(self, password):
         self.password_hash = generate_password_hash(password, salt_length=32)
@@ -35,10 +35,20 @@ class WordleGuess(db.Model):
     guess = db.Column(db.String(10), nullable=False)
     guess_time = db.Column(db.DateTime, nullable=False)
 
-class WordleAchievements(db.Model):
+class Achievement(db.Model):
     __tablename__ = 'achievements'
-    achievement_id = db.Column(db.Integer, primary_key = True, unique= True, nullable = False)
-    achievement_name = db.Column(db.String(50), nullable=False)
-    date_achieved = db.Column(db.DateTime, nullable=False)
+    achievement_id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(200), nullable=True)
+    requirement = db.Column(db.String(200), nullable=True)
+    db.relationship('UserAchievement', secondary="user_achievements", back_populates='users')
+
+
+class UserAchievement(db.Model):
+    __tablename__ = 'user_achievements'
+    user_achievement_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    db.relationship('User', secondary='user_achievements', back_populates='achievements')
+    achievement_id = db.Column(db.Integer, db.ForeignKey('achievements.achievement_id'), nullable=False)
+    date_achieved = db.Column(db.DateTime, nullable=False)
+    user = db.relationship('User', back_populates='achievements')
+    achievement = db.relationship('Achievements', secondary="user_achievements", back_populates='users')
