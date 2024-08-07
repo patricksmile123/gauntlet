@@ -42,4 +42,3 @@ class WordleAchievements(db.Model):
     date_achieved = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     db.relationship('User', secondary='user_achievements', back_populates='achievements')
-
