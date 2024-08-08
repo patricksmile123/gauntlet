@@ -171,11 +171,13 @@ def populate_achievements():
         db.session.bulk_save_objects(achievements)
         db.session.commit()
 
-@app.route('api/achievement_checker', methods=['GET'])
-def check_achievements(user_id, game_result):
+@app.route('/api/achievement_checker', methods=['GET'])
+def check_achievements():
 
+    data = request.get_json()
+    user_id = data['user_id']
     user = User.query.filter_by(user_id=user_id).first()
-    current_achievements = UserAchievement.query.filter_by(user_id=user_id).all()
+    current_achievements = {ach.achievement_id for ach in UserAchievement.query.filter_by(user_id=user_id).all()}
     all_achievements = Achievement.query.all()
     new_achievements = []
     
@@ -244,5 +246,9 @@ def check_achievements(user_id, game_result):
             date_achieved=datetime.now()
         )
         db.session.add(user_achievement)
-    
     db.session.commit()
+    
+    return jsonify({
+    "new_achievements": [ach.name for ach in new_achievements],
+    "message": "Achievements checked and updated"
+    }), 200
