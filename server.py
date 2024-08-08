@@ -1,7 +1,7 @@
 from ast import parse
 from flask import Flask, request, jsonify, send_from_directory
 import random
-from models import User, Game, WordleGuess, Achievement
+from models import User, Game, WordleGuess, Achievement, UserAchievement
 from application import app
 from forms import RegistrationForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -143,11 +143,106 @@ def catch_all(path):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
+@app.route('/api/populate_achievements', methods=['GET'])
 def populate_achievements():
     if Achievement.query.count() == 0:
         achievements = [
-            Achievement(name='First Login', description='Login for the first time', requirement='Login once'),
-            Achievement(name='First Win', description='', requirement=''),
+            Achievement(name='First Login', requirement='Login once'),
+            Achievement(name='First Win', requirement='Win one Wordle game'),
+            Achievement(name='Win 10 Games', requirement='Win 10 Wordle games'),
+            Achievement(name='Win 100 Games', requirement='Win 100 Wordle games'),
+            Achievement(name='Win 250 Games', requirement='Win 250 Wordle games'),
+            Achievement(name='Win 500 Games', requirement='Win 500 Wordle games'),
+            Achievement(name='Win 1000 Games', requirement='Win 1000 Wordle games'),
+            Achievement(name='First Loss', requirement='Lose one Wordle game'),
+            Achievement(name='Lose 10 Games', requirement='Lose 10 Wordle games'),
+            Achievement(name='Lose 100 Games', requirement='Lose 100 Wordle games'),
+            Achievement(name='Win a game in 60 seconds', requirement='Win a game in 60 seconds or less'),
+            Achievement(name='Win a game in 30 seconds', requirement='Win a game in 30 seconds or less'),
+            Achievement(name='Win a game in 15 seconds', requirement='Win a game in 15 seconds or less'),
+            Achievement(name='Average time of 5 minutes', requirement='Average time of 5 minutes or less'),
+            Achievement(name='Average time of 3 minutes', requirement='Average time of 3 minutes or less'),
+            Achievement(name='Average score of 5', requirement='Average score of 5 or less'),
+            Achievement(name='Average score of 4.75', requirement='Average score of 4.75 or less'),
+            Achievement(name='Average score of 4.5', requirement='Average score of 4.5 or less'),
+            Achievement(name='Average score of 4', requirement='Average score of 4 or less'),
+            Achievement(name='Average score of 3.5', requirement='Average score of 3.5 or less'),
         ]
         db.session.bulk_save_objects(achievements)
         db.session.commit()
+
+@app.route('api/achievement_checker', methods=['GET'])
+def check_achievements(user_id, game_result):
+
+    user = User.query.filter_by(user_id=user_id).first()
+    current_achievements = UserAchievement.query.filter_by(user_id=user_id).all()
+    all_achievements = Achievement.query.all()
+    new_achievements = []
+    
+    def total_wins():
+        return Game.query.filter_by(user_id=user_id, outcome='win').count()
+    
+    def total_losses():
+        return Game.query.filter_by(user_id=user_id, outcome='loss').count()
+    
+    def average_score():
+        scores = [int(game.answer) for game in Game.query.filter_by(user_id=user_id)]
+        return sum(scores) / len(scores) if scores else 0
+    
+    def average_time():
+        times = [(game.end_time - game.start_time).total_seconds() for game in Game.query.filter_by(user_id=user_id) if game.end_time]
+        return sum(times) / len(times) if times else 0
+    
+    for achievement in all_achievements:
+        if achievement.achievement_id in current_achievements:
+            continue
+        if achievement.name == 'First Login':
+            new_achievements.append(achievement)
+        elif achievement.name == 'First Win' and total_wins() >= 1:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win 10 Games' and total_wins() >= 10:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win 100 Games' and total_wins() >= 100:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win 250 Games' and total_wins() >= 250:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win 500 Games' and total_wins() >= 500:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win 1000 Games' and total_wins() >= 1000:
+            new_achievements.append(achievement)
+        elif achievement.name == 'First Loss' and total_losses() >= 1:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Lose 10 Games' and total_losses() >= 10:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Lose 100 Games' and total_losses() >= 100:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win a game in 60 seconds' and game_result['win'] and game_result['time'] <= 60:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win a game in 30 seconds' and game_result['win'] and game_result['time'] <= 30:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Win a game in 15 seconds' and game_result['win'] and game_result['time'] <= 15:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Average time of 5 minutes' and average_time() <= 300:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Average time of 3 minutes' and average_time() <= 180:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Average score of 5' and average_score() <= 5:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Average score of 4.75' and average_score() <= 4.75:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Average score of 4.5' and average_score() <= 4.5:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Average score of 4' and average_score() <= 4:
+            new_achievements.append(achievement)
+        elif achievement.name == 'Average score of 3.5' and average_score() <= 3.5:
+            new_achievements.append(achievement)
+    
+    for achievement in new_achievements:
+        user_achievement = UserAchievement(
+            user_id=user.user_id,
+            achievement_id=achievement.achievement_id,
+            date_achieved=datetime.now()
+        )
+        db.session.add(user_achievement)
+    
+    db.session.commit()
