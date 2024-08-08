@@ -21,6 +21,6 @@ from models import *
 
 @app.shell_context_processor
 def make_shell_context():
-    return dict(db=db, User=User, Game=Game, LoginManager=LoginManager, WordleGuess=WordleGuess, )
+    return dict(db=db, User=User, Game=Game, LoginManager=LoginManager, WordleGuess=WordleGuess, Achievement=Achievement, UserAchievement=UserAchievement)
 
 import server

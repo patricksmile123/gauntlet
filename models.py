@@ -1,6 +1,8 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from db import db
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -9,16 +11,15 @@ class User(UserMixin, db.Model):
     lastname = db.Column(db.String(20), nullable=False, index=True)
     username = db.Column(db.String(20), nullable=False, unique=True, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    db.relationship('Game', backref='user_id', lazy='dynamic')
-    db.relationship('WordleAchievements', backref='user_id', lazy='dynamic')
-    db.relationship('Achievement', secondary="user_achievements", back_populates='users')
- 
+    games = db.relationship('Game', backref='user', lazy='dynamic')
+    achievements = db.relationship('UserAchievement', back_populates='user', lazy='dynamic')
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password, salt_length=32)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
 class Game(db.Model):
     __tablename__ = 'games'
     game_id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
@@ -39,16 +40,14 @@ class Achievement(db.Model):
     __tablename__ = 'achievements'
     achievement_id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(200), nullable=True)
     requirement = db.Column(db.String(200), nullable=True)
-    db.relationship('UserAchievement', secondary="user_achievements", back_populates='users')
-
+    user_achievements = db.relationship('UserAchievement', back_populates='achievement', lazy='dynamic')
 
 class UserAchievement(db.Model):
     __tablename__ = 'user_achievements'
-    user_achievement_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     achievement_id = db.Column(db.Integer, db.ForeignKey('achievements.achievement_id'), nullable=False)
     date_achieved = db.Column(db.DateTime, nullable=False)
     user = db.relationship('User', back_populates='achievements')
-    achievement = db.relationship('Achievements', secondary="user_achievements", back_populates='users')
+    achievement = db.relationship('Achievement', back_populates='user_achievements')

@@ -1,7 +1,7 @@
 from ast import parse
 from flask import Flask, request, jsonify, send_from_directory
 import random
-from models import User, Game, WordleGuess
+from models import User, Game, WordleGuess, Achievement
 from application import app
 from forms import RegistrationForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -142,3 +142,12 @@ def catch_all(path):
     if path.startswith('static/') or path.startswith('media/'):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
+
+def populate_achievements():
+    if Achievement.query.count() == 0:
+        achievements = [
+            Achievement(name='First Login', description='Login for the first time', requirement='Login once'),
+            Achievement(name='First Win', description='', requirement=''),
+        ]
+        db.session.bulk_save_objects(achievements)
+        db.session.commit()
