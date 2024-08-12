@@ -4,7 +4,7 @@ import Wordle from './Wordle';
 import './App.css';
 import Signup from './Signup';
 import Login from './Login';
-import Logout from './Logout';	
+import LocationProvider from './LocationProvider';
 import Leaderboard from './Leaderboard';
 import Navbar from './Navbar';
 import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
@@ -13,6 +13,7 @@ import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
 
 function App() {
 	const [user, setUser] = useState({});
+	const [location, setLocation] = useState("");
 
 	// useEffect(() => {
 
@@ -21,10 +22,9 @@ function App() {
 	useEffect(() => {
 		JSON.stringify(user) === "{}" && localStorage.getItem("user") && setUser(JSON.parse(localStorage.getItem("user")))
 		JSON.stringify(user) !== "{}" && localStorage.setItem("user", JSON.stringify(user))
-		console.log(user)
 	}, [user]);
 	return (
-		<><Navbar user={user} setUser={setUser}/>
+		<><Navbar user={user} setUser={setUser} location={location}/>
 		<SnackbarProvider maxSnack={10}>
 	  <div className="content">
 	  
@@ -40,6 +40,7 @@ function App() {
 			</>}
 			<Route path="*" element={<Navigate user={user} to={!!(user.username) ? "/wordle" : "/login"}/>} /> 
 			</Routes>
+			<LocationProvider setLocation={setLocation} />
 		</Router>
 	  </div>
 	  </SnackbarProvider>

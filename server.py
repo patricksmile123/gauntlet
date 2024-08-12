@@ -151,6 +151,8 @@ def guess():
         
         newAchievements = [a.name for a in check_achievements(user, currentGame)]
         response = {"result": result, "guessCount": guessCount, "new_achievements": newAchievements}
+        if (currentGame.outcome == "loss"):
+            response["answer"] = currentGame.answer
         db.session.commit()
         return jsonify(response)
     except:

@@ -1,7 +1,8 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({user, setUser}) => {
+const Navbar = ({user, setUser, location}) => {
     const logout = () => {
         setUser({});
         localStorage.removeItem("user");
@@ -9,10 +10,10 @@ const Navbar = ({user, setUser}) => {
     return (
         <nav className='navbar'>
             <ul>
-                {user.username && <li><a href="/wordle">Play</a></li>}
-                <li><a href="/leaderboard">Leaderboard</a></li>
-                {!user.username && <li><a href="/login">Login</a></li>}
-                {!user.username && <li><a href="/signup">Signup</a></li>}
+                {user.username && <li className={location === "/wordle" ? "active-breadcrumb" : undefined}><a href="/wordle">Play</a></li>}
+                <li className={location === "/leaderboard" ? "active-breadcrumb" : undefined}><a href="/leaderboard">Leaderboard</a></li>
+                {!user.username && <li className={location === "/login" ? "active-breadcrumb" : undefined}><a href="/login">Login</a></li>}
+                {!user.username && <li className={location === "/signup" ? "active-breadcrumb" : undefined}><a href="/signup">Signup</a></li>}
                 {user.username && <li onClick={logout}><a>Logout</a></li>}
             </ul>
         </nav>

@@ -2,8 +2,22 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Keyboard from './Keyboard';
 import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
 
-
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
 
 function Wordle({user}) {
     const [guess, setGuess] = useState("");
@@ -12,6 +26,8 @@ function Wordle({user}) {
     const [isWin, setIsWin] = useState(false)
     const [allowSend, setAllowSend] = useState(true)
     const [isDisabled, setDisabled] = useState(false)
+    const [answer, setAnswer] = useState("")
+    const [showOutcomeModal, setShowOutcomeModal] = useState(false)
     const [keyDictionary, setKeyDictionary] = useState([
         { "key": "Q", "state": "" },
         { "key": "W", "state": "" },
@@ -45,7 +61,6 @@ function Wordle({user}) {
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log("hello")
         const response = await fetch('/api/createGame', {
             method: 'GET',
             headers: { 
@@ -54,9 +69,7 @@ function Wordle({user}) {
         });
         if (response.ok) {
             const data = await response.json();
-            console.log(data);
             setResult(data.map(previousGuess => {
-                console.log(previousGuess);  
                 let tempData = {
                 }
                 for (let i = 0; i < 5; i++) {
@@ -65,7 +78,6 @@ function Wordle({user}) {
                         for (let j = 0; j < keyDictionary.length; j++){
                             if (keyDictionary[j].key.toUpperCase() === currentLetter){
                                 keyDictionary[j].state = previousGuess.result[i]
-                                console.log(keyDictionary[j].key)
                             }
                     }
                 }
@@ -86,7 +98,6 @@ function Wordle({user}) {
                 if (guess.length !== 5){
                     return
                 }
-                console.log("Sending guess:", { guess });
                 const response = await fetch('/api/guess', {
                     method: 'POST',
                     headers: {
@@ -95,27 +106,26 @@ function Wordle({user}) {
                     },
                     body: JSON.stringify({ guess: guess})
                 });
-                console.log(response)   
 
                 if (response.ok) {
                     const data = await response.json();
                     data.new_achievements.forEach(achievement => {
-                        console.log(achievement)
                         enqueueSnackbar(`🏆 ${achievement}`)
                     })
 
                     setGuess('')
                     
-                    console.log(data);  
                     let tempData = {
                     }
                     if (data.result.every(val=>val === "correct")){
                         setIsWin(true)
+                        setShowOutcomeModal(true)
                         setDisabled(true)
                     }
                     else if (data.guessCount >= 5){
-                        console.log("hello")
                         setIsLoss(true)
+                        setAnswer(data.answer)
+                        setShowOutcomeModal(true)
                         setDisabled(true)
                     }
                     for (let i = 0; i < 5; i++) {
@@ -124,14 +134,12 @@ function Wordle({user}) {
                             for (let j = 0; j < keyDictionary.length; j++){
                                 if (keyDictionary[j].key.toUpperCase() === currentLetter){
                                     keyDictionary[j].state = data.result[i]
-                                    console.log(keyDictionary[j].key)
                                 }
                         }
                         setResult([
                             ...letterData,
                             tempData
                         ])
-                        console.log(letterData)
                     }
                     setAllowSend(true)
                 }
@@ -143,6 +151,45 @@ function Wordle({user}) {
         if (guess.length < 5) {
             setGuess(`${guess}${letter}` )
         }
+    }
+
+    const playAgain = () => {
+        setGuess("")
+        setResult([])
+        setIsLoss(false)
+        setIsWin(false)
+        setDisabled(false)
+        setAnswer("")
+        setShowOutcomeModal(false)
+        setKeyDictionary(keyDictionary.map(entry => {
+            entry.state = ""
+            return entry
+        }))
+        const fetchData = async () => {
+            const response = await fetch('/api/createGame', {
+                method: 'GET',
+                headers: { 
+                    'authorization': `Bearer ${user.token}`
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setResult(data.map(previousGuess => {
+                    let tempData = {
+                    }
+                    for (let i = 0; i < 5; i++) {
+                            let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
+                            tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
+                            for (let j = 0; j < keyDictionary.length; j++){
+                                if (keyDictionary[j].key.toUpperCase() === currentLetter){
+                                    keyDictionary[j].state = previousGuess.result[i]
+                                }
+                        }
+                    }
+                    return tempData
+                }));
+            }}
+            fetchData().catch(console.error);
     }
 
     return (
@@ -170,11 +217,27 @@ function Wordle({user}) {
                 {isWin? (
                     <div>Win!</div>
                 ):(<div></div>)}				
-                {isLoss? (
+                {isLoss? (<>
                     <div>Loss</div>
+                    <Typography variant='h6'>The answer was {answer}</Typography>
+                    </>
                 ):(<div></div>)}
             </header>
             <Keyboard handleGuess={handleGuess} backspace={backspace} keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
+            <Modal
+                open={showOutcomeModal}
+                onClose={() => setShowOutcomeModal(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    You get nothing. You lose (or win, not decided yet). Good day sir.
+                </Typography>
+                <Button onClick={playAgain}>Play Again</Button>
+                <button onClick={() => setShowOutcomeModal(false)}>Close</button>
+                </Box>
+            </Modal>
         </div>
         </SnackbarProvider>
     );

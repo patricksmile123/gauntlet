@@ -124,6 +124,11 @@ html {
   margin-right: 10px;
 }
 
+.active-breadcrumb {
+  background-color: #ffffff44;
+  font-family: 'Courier New', Courier, monospace;
+}
+
 .notistack-SnackbarContainer {
   div > * > * {
     background-color: #5c5470;
