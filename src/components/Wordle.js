@@ -10,6 +10,7 @@ function Wordle({user}) {
     const [letterData, setResult] = useState([]);
     const [isLoss, setIsLoss] = useState(false)
     const [isWin, setIsWin] = useState(false)
+    const [allowSend, setAllowSend] = useState(true)
     const [isDisabled, setDisabled] = useState(false)
     const [keyDictionary, setKeyDictionary] = useState([
         { "key": "Q", "state": "" },
@@ -74,59 +75,69 @@ function Wordle({user}) {
         fetchData().catch(console.error);
     }, [])
 
-    const handleGuess = async () => {
-    try {
-        if (guess.length !== 5){
-            return
-        }
-        console.log("Sending guess:", { guess });
-        const response = await fetch('/api/guess', {
-            method: 'POST',
-            headers: {
-                'authorization': `Bearer ${user.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ guess: guess})
-        });
-        console.log(response)   
-
-        if (response.ok) {
-            const data = await response.json();
-            data.new_achievements.forEach(achievement => {
-                console.log(achievement)
-                enqueueSnackbar(`🏆 ${achievement}`)
-            })
-            
-            console.log(data);  
-            let tempData = {
-            }
-            if (data.result.every(val=>val === "correct")){
-                setIsWin(true)
-                setDisabled(true)
-            }
-            else if (data.guessCount >= 5){
-                console.log("hello")
-                setIsLoss(true)
-                setDisabled(true)
-            }
-            for (let i = 0; i < 5; i++) {
-                    let currentLetter = guess.charAt(i).toUpperCase()
-                    tempData["l"+ i] = {"letter": currentLetter,"result": data.result[i]}
-                    for (let j = 0; j < keyDictionary.length; j++){
-                        if (keyDictionary[j].key.toUpperCase() === currentLetter){
-                            keyDictionary[j].state = data.result[i]
-                            console.log(keyDictionary[j].key)
-                        }
-                }
-                setResult([
-                    ...letterData,
-                    tempData
-                ])
-                console.log(letterData)
-            }
-        }
-     } catch (error) {
+    const backspace = () => {
+        setGuess(guess.slice(0, -1))
     }
+
+    const handleGuess = async () => {
+        if (allowSend) {
+            setAllowSend(false)
+            try {
+                if (guess.length !== 5){
+                    return
+                }
+                console.log("Sending guess:", { guess });
+                const response = await fetch('/api/guess', {
+                    method: 'POST',
+                    headers: {
+                        'authorization': `Bearer ${user.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ guess: guess})
+                });
+                console.log(response)   
+
+                if (response.ok) {
+                    const data = await response.json();
+                    data.new_achievements.forEach(achievement => {
+                        console.log(achievement)
+                        enqueueSnackbar(`🏆 ${achievement}`)
+                    })
+
+                    setGuess('')
+                    
+                    console.log(data);  
+                    let tempData = {
+                    }
+                    if (data.result.every(val=>val === "correct")){
+                        setIsWin(true)
+                        setDisabled(true)
+                    }
+                    else if (data.guessCount >= 5){
+                        console.log("hello")
+                        setIsLoss(true)
+                        setDisabled(true)
+                    }
+                    for (let i = 0; i < 5; i++) {
+                            let currentLetter = guess.charAt(i).toUpperCase()
+                            tempData["l"+ i] = {"letter": currentLetter,"result": data.result[i]}
+                            for (let j = 0; j < keyDictionary.length; j++){
+                                if (keyDictionary[j].key.toUpperCase() === currentLetter){
+                                    keyDictionary[j].state = data.result[i]
+                                    console.log(keyDictionary[j].key)
+                                }
+                        }
+                        setResult([
+                            ...letterData,
+                            tempData
+                        ])
+                        console.log(letterData)
+                    }
+                    setAllowSend(true)
+                }
+            } catch (error) {
+            }
+        }
     };
     const handleKeyPress = (letter) => { 
         if (guess.length < 5) {
@@ -146,7 +157,7 @@ function Wordle({user}) {
                     minLength={5}
                     maxLength={5}
                 />
-                <button disabled={isDisabled} onClick={handleGuess}>Submit Guess</button>	
+                <button disabled={isDisabled && !allowSend} onClick={handleGuess}>Submit Guess</button>	
                 <table className="guessTable">{letterData.map(entry => (
                     <tr>
                         <td className={entry.l0.result}>{entry.l0.letter}</td>
@@ -163,7 +174,7 @@ function Wordle({user}) {
                     <div>Loss</div>
                 ):(<div></div>)}
             </header>
-            <Keyboard keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
+            <Keyboard handleGuess={handleGuess} backspace={backspace} keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
         </div>
         </SnackbarProvider>
     );

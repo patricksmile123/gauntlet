@@ -127,7 +127,7 @@ def guess():
     try:
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
-        currentGame = Game.query.filter_by(user_id=user.user_id).order_by(Game.game_id.desc()).first()
+        currentGame = Game.query.filter_by(user_id=user.user_id, outcome=None).order_by(Game.game_id.desc()).first()
         data = request.get_json()
         if not data or 'guess' not in data:
             return jsonify({"error": "Invalid input"}), 400
