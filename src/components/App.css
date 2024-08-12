@@ -123,3 +123,14 @@ html {
   height: 4rem;
   margin-right: 10px;
 }
+
+.notistack-SnackbarContainer {
+  div > * > * {
+    background-color: #5c5470;
+    color: white;
+    font-size: 1rem;
+    font-family: 'Courier New', Courier, monospace;
+    border-radius: 1rem;
+    
+  }
+}

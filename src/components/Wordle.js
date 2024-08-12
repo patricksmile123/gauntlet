@@ -94,7 +94,7 @@ function Wordle({user}) {
             const data = await response.json();
             data.new_achievements.forEach(achievement => {
                 console.log(achievement)
-                enqueueSnackbar(achievement)
+                enqueueSnackbar(`🏆 ${achievement}`)
             })
             
             console.log(data);  
