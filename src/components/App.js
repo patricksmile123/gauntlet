@@ -7,10 +7,17 @@ import Login from './Login';
 import Logout from './Logout';	
 import Leaderboard from './Leaderboard';
 import Navbar from './Navbar';
+import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
+
 
 
 function App() {
 	const [user, setUser] = useState({});
+
+	// useEffect(() => {
+
+	// }, [achievement]);
+
 	useEffect(() => {
 		JSON.stringify(user) === "{}" && localStorage.getItem("user") && setUser(JSON.parse(localStorage.getItem("user")))
 		JSON.stringify(user) !== "{}" && localStorage.setItem("user", JSON.stringify(user))
@@ -18,8 +25,9 @@ function App() {
 	}, [user]);
 	return (
 		<><Navbar user={user} setUser={setUser}/>
-		
+		<SnackbarProvider maxSnack={10}>
 	  <div className="content">
+	  
 		<Router>
 			<Routes>
 				<Route path="/leaderboard" element={<Leaderboard />} />
@@ -34,6 +42,7 @@ function App() {
 			</Routes>
 		</Router>
 	  </div>
+	  </SnackbarProvider>
 	  </>
 	);
   }

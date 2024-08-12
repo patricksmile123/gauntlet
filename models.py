@@ -28,6 +28,7 @@ class Game(db.Model):
     end_time = db.Column(db.DateTime, nullable=True)
     outcome = db.Column(db.String(10), nullable=True)
     answer = db.Column(db.String(10), nullable=False)
+    score = db.Column(db.Integer, nullable=True)
 
 class WordleGuess(db.Model):
     __tablename__ = 'wordle_guess'

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Keyboard from './Keyboard';
+import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
+
 
 
 function Wordle({user}) {
@@ -38,6 +40,8 @@ function Wordle({user}) {
         { "key": "M", "state": "" }
     ]);
 
+    const { enqueueSnackbar } = useSnackbar();
+
     useEffect(() => {
         const fetchData = async () => {
             console.log("hello")
@@ -58,7 +62,7 @@ function Wordle({user}) {
                         let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
                         tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
                         for (let j = 0; j < keyDictionary.length; j++){
-                            if (keyDictionary[j].key.toUpperCase() == currentLetter){
+                            if (keyDictionary[j].key.toUpperCase() === currentLetter){
                                 keyDictionary[j].state = previousGuess.result[i]
                                 console.log(keyDictionary[j].key)
                             }
@@ -84,9 +88,15 @@ function Wordle({user}) {
             },
             body: JSON.stringify({ guess: guess})
         });
+        console.log(response)   
 
         if (response.ok) {
             const data = await response.json();
+            data.new_achievements.forEach(achievement => {
+                console.log(achievement)
+                enqueueSnackbar(achievement)
+            })
+            
             console.log(data);  
             let tempData = {
             }
@@ -103,7 +113,7 @@ function Wordle({user}) {
                     let currentLetter = guess.charAt(i).toUpperCase()
                     tempData["l"+ i] = {"letter": currentLetter,"result": data.result[i]}
                     for (let j = 0; j < keyDictionary.length; j++){
-                        if (keyDictionary[j].key.toUpperCase() == currentLetter){
+                        if (keyDictionary[j].key.toUpperCase() === currentLetter){
                             keyDictionary[j].state = data.result[i]
                             console.log(keyDictionary[j].key)
                         }
@@ -125,6 +135,7 @@ function Wordle({user}) {
     }
 
     return (
+        <SnackbarProvider maxSnack={10}>
         <div className="App">
             <header className="App-header">
                 <h1>Wordle</h1>
@@ -154,6 +165,7 @@ function Wordle({user}) {
             </header>
             <Keyboard keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
         </div>
+        </SnackbarProvider>
     );
 }
     export default Wordle;
