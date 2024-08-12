@@ -15,6 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'data', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
+
 # app.config['MAX_CONTENT_LENGTH'] = 8
 
 from models import *

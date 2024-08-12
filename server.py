@@ -10,6 +10,7 @@ import jwt
 from datetime import datetime
 import traceback
 from sqlalchemy import text
+import time
 
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
@@ -41,6 +42,7 @@ def createGame():
                 answer=random.choice(WORD_LIST)
             )
             db.session.add(newGame)
+            print("Answer: " + newGame.answer)
             db.session.commit()
             return jsonify(newGame.game_id)
         else:
@@ -53,7 +55,6 @@ def createGame():
         return jsonify({"error": "Invalid token"}), 400
     
 def check_achievements(user, currentGame):
-
     current_achievements = {ach.achievement_id for ach in UserAchievement.query.filter_by(user_id=user.user_id).all()}
     all_achievements = Achievement.query.all()
     new_achievements = []
@@ -67,7 +68,7 @@ def check_achievements(user, currentGame):
     avg_time = sum(times) / len(times) if times else 0
     
     game_time = (currentGame.end_time - currentGame.start_time).total_seconds() if currentGame.end_time else 0
-
+    
     for achievement in all_achievements:
         if achievement.achievement_id in current_achievements:
             continue
@@ -112,15 +113,8 @@ def check_achievements(user, currentGame):
         elif achievement.name == 'Average score of 3.5' and avg_score <= 3.5:
             new_achievements.append(achievement)
     
-    for achievement in new_achievements:
-        user_achievement = UserAchievement(
-            user_id=user.user_id,
-            achievement_id=achievement.achievement_id,
-            date_achieved=datetime.now()
-        )
-        db.session.add(user_achievement)
-    
-    db.session.commit()
+    user_achievements = [UserAchievement(user_id=user.user_id, achievement_id=achievement.achievement_id, date_achieved=datetime.now()) for achievement in new_achievements]
+    db.session.bulk_save_objects(user_achievements)
 
     return new_achievements
 
@@ -153,14 +147,16 @@ def guess():
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "loss"
-        db.session.commit()
         result = parseResult(guess, currentGame.answer)
-        response = {"result": result, "guessCount": WordleGuess.query.filter_by(game_id=currentGame.game_id).count(), "new_achievements": [a.name for a in check_achievements(user, currentGame)]}
-        print(response)
+        
+        newAchievements = [a.name for a in check_achievements(user, currentGame)]
+        response = {"result": result, "guessCount": guessCount, "new_achievements": newAchievements}
+        db.session.commit()
         return jsonify(response)
     except:
         print(traceback.format_exc())
         return jsonify({"error": "Invalid token"}), 400
+    
 
 
 @app.route('/api/signup', methods=['POST'])
@@ -244,3 +240,16 @@ def populate_achievements():
         db.session.bulk_save_objects(achievements)
         db.session.commit()
 
+
+@app.route('/api/achievement_getter', methods=['GET'])
+def achievement_getter():
+    authoHeader = request.headers.get('authorization')
+    token = authoHeader.split(" ")[1]
+    try:
+        decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
+        user = User.query.filter_by(username=decodedJwt['username']).first()
+        achievements = Achievement.query.filter_by(username=user.username).all()
+        return jsonify(achievement.name for achievement in achievements)
+    except:
+        print(traceback.format_exc())
+        return jsonify({"error": "Invalid token"}), 400
