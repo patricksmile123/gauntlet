@@ -10,7 +10,7 @@ app.config['SECRET_KEY'] =  b'WR#&f&+%78er0we=%799eww+#7^90-;s'
 login = LoginManager(app)
 login.login_view = 'login'
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data', 'data.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://" + os.getenv('DB_USER') + ":" + os.getenv('DB_PASSWORD') + "@" + os.getenv('DB_HOST') + ":5432/postgres"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'data', 'uploads')
