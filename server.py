@@ -213,7 +213,7 @@ def catch_all(path):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/api/populate_achievements', methods=['GET'])
+@app.route('/api/populate_achievements', methods=['POST'])
 def populate_achievements():
     if Achievement.query.count() == 0:
         achievements = [
@@ -243,10 +243,12 @@ def populate_achievements():
         db.session.commit()
 
 
-@app.route('/api/achievement_getter', methods=['GET'])
+@app.route('/api/achievement_getter', methods=['POST'])
 def achievement_getter():
     authoHeader = request.headers.get('authorization')
+    print(authoHeader)
     token = authoHeader.split(" ")[1]
+    print(token)
     try:
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()

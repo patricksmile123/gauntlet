@@ -1,0 +1,23 @@
+.AchievementHeader {
+    font-size: 3rem;
+    margin-top: 1rem;
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.AchievementList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.AchievementData {
+    background-color: #444;
+    color: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;
+}
