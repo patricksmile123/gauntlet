@@ -21,9 +21,10 @@ function App() {
 		JSON.stringify(user) !== "{}" && localStorage.setItem("user", JSON.stringify(user))
 		console.log(user)
 	}, [user]);
-	
+
 	return (
 		<><Navbar user={user} setUser={setUser} location={location}/>
+		<SnackbarProvider maxSnack={10}>
 	  <div className="content">
 		<Router>
 			<Routes>
@@ -43,6 +44,7 @@ function App() {
 			<LocationProvider setLocation={setLocation} />
 		</Router>
 	  </div>
+	  </SnackbarProvider>
 	  </>
 	);
   }
