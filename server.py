@@ -15,6 +15,7 @@ import time
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
 LEADERBOARD_QUERY = open("leaderboard.sql").read()
+WORD_LIST6 = 0
 
 def parseResult(guess, answer):
     result = []
@@ -29,6 +30,33 @@ def parseResult(guess, answer):
 
 @app.route('/api/createGame', methods=['GET'])
 def createGame():
+    authoHeader = request.headers.get('authorization')
+    token = authoHeader.split(" ")[1]
+    try:
+        decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
+        user = User.query.filter_by(username=decodedJwt['username']).first()
+        currentGame = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).first()
+        if currentGame == None:
+            newGame = Game(
+                user_id=user.user_id,
+                start_time=datetime.now(),
+                answer=random.choice(WORD_LIST)
+            )
+            db.session.add(newGame)
+            print("Answer: " + newGame.answer)
+            db.session.commit()
+            return jsonify(newGame.game_id)
+        else:
+            currentGuesses = WordleGuess.query.filter_by(game_id = currentGame.game_id).order_by(WordleGuess.guess_time.asc()).all()
+            currentGuesses = [{"guess": guess.guess, "result": parseResult(guess.guess, currentGame.answer)} for guess in currentGuesses]
+            return jsonify(currentGuesses)
+
+    except:
+        print(traceback.format_exc())
+        return jsonify({"error": "Invalid token"}), 400
+    
+@app.route('/api/createGame6', methods=['GET'])
+def createGame6():
     authoHeader = request.headers.get('authorization')
     token = authoHeader.split(" ")[1]
     try:
@@ -243,17 +271,17 @@ def populate_achievements():
         db.session.commit()
 
 
-@app.route('/api/achievement_getter', methods=['POST'])
+@app.route('/api/achievement_getter', methods=['GET'])
 def achievement_getter():
     authoHeader = request.headers.get('authorization')
     print(authoHeader)
     token = authoHeader.split(" ")[1]
-    print(token)
     try:
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
-        achievements = Achievement.query.filter_by(username=user.username).all()
-        return jsonify(achievement.name for achievement in achievements)
+        achievements = UserAchievement.query.filter_by(user_id=user.user_id).all()
+        return jsonify ([achievement.achievement.name for achievement in achievements])
     except:
         print(traceback.format_exc())
         return jsonify({"error": "Invalid token"}), 400
+    

@@ -12,11 +12,11 @@ const Keyboard = ({onKeyPress, keyDictionary, handleGuess, backspace}) => {
         console.log("Key Pressed: ", letter);
         onKeyPress(letter);
     }
-    document.addEventListener('keyup', (e) => {
-        if (e.code === "Enter") {
-            handleGuess();
-        }
-    })
+    // document.addEventListener('keyup', (e) => {
+    //     if (e.code === "Enter") {
+    //         handleGuess();
+    //     }
+    // })
     return ( 
         <div className="keyboard">
             {keyDictionary.map((entry) => <Key letter={entry.key} key={entry.key} onClick={keyPressed(entry.key)} state={entry.state} /> )}

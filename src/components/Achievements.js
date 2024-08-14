@@ -3,18 +3,19 @@ import './Achievements.css';
 
 function Achievements ({user}) {
     const [achievement, setAchievement] = useState([]);
+    console.log(`Achievements ${JSON.stringify(user)}`)
+    
     useEffect(() => {
-        if (!user.token) {
+        if (!{user}.token) {
             console.log('No token available');
-            return;
         }
-
+        
         const fetchData = async () => {
             try {
                 const response = await fetch('/api/achievement_getter', {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${user.token}`,
+                        'authorization': `Bearer ${user.token}`,
                     },
                 });
 
@@ -30,14 +31,15 @@ function Achievements ({user}) {
             }
         };
         fetchData();
-    }, [user.token]); 
+    }, []); 
 
     return (
         <div>
             <h1 className="AchievementHeader">Achievements</h1>
             <ul className="AchievementList">
-                {achievement.map((achievement) => (
-                    <li className="AchievementData" key={achievement.id}>{achievement.name}</li>
+                {achievement.map((achievement, idx) => (
+                    <li className="AchievementData" key={idx}> {achievement}</li>
+                    
                 ))}
             </ul>
         </div>

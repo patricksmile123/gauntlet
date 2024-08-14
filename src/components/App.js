@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, json } from 'react-router-dom';
 import Wordle from './Wordle';
 import './App.css';
 import Signup from './Signup';
@@ -13,13 +13,13 @@ import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
 
 
 function App() {
-	const [user, setUser] = useState({});
+	const [user, setUser] = useState(localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {});
 	const [location, setLocation] = useState("");
 
 	useEffect(() => {
 		JSON.stringify(user) === "{}" && localStorage.getItem("user") && setUser(JSON.parse(localStorage.getItem("user")))
 		JSON.stringify(user) !== "{}" && localStorage.setItem("user", JSON.stringify(user))
-		console.log(user)
+		console.log(`app ${JSON.stringify(user)}`)
 	}, [user]);
 
 	return (
@@ -39,7 +39,6 @@ function App() {
 				<Route path="/leaderboard" element={<Leaderboard user={user} />} />
 			</>}
 			<Route path="*" element={<Navigate user={user} to={!!(user.username) ? "/wordle" : "/login"}/>} /> 
-			<Route path="/achievements" element={<Achievements user={user} />} />
 			</Routes>
 			<LocationProvider setLocation={setLocation} />
 		</Router>
@@ -47,6 +46,6 @@ function App() {
 	  </SnackbarProvider>
 	  </>
 	);
-  }
+  } 
 
 export default App;

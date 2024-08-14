@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './Leaderboard.css';
 
-const Leaderboard = () => {
+const Leaderboard = ({user}) => {
     const [scores, setScores] = useState([]);
+    console.log(`Leaderboard ${JSON.stringify(user)}`)
 
     useEffect(() => {
         // Fetch leaderboard scores from JSON API

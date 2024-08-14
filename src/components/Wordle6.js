@@ -73,15 +73,14 @@ function Wordle({user}) {
             setResult(data.map(previousGuess => {
                 let tempData = {
                 }
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 6; i++) {
                         let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
                         tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
-                        setKeyDictionary(keyDictionary.map(entry => {
-                            if (entry.key.toUpperCase() === currentLetter){
-                                entry.state = data.result[i]
+                        for (let j = 0; j < keyDictionary.length; j++){
+                            if (keyDictionary[j].key.toUpperCase() === currentLetter){
+                                keyDictionary[j].state = previousGuess.result[i]
                             }
-                            return entry
-                        }))
+                    }
                 }
                 return tempData
             }));
@@ -97,7 +96,7 @@ function Wordle({user}) {
         if (allowSend) {
             setAllowSend(false)
             try {
-                if (guess.length !== 5){
+                if (guess.length !== 6){
                     return
                 }
                 const response = await fetch('/api/guess', {
@@ -130,15 +129,14 @@ function Wordle({user}) {
                         setShowOutcomeModal(true)
                         setDisabled(true)
                     }
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 0; i < 6; i++) {
                             let currentLetter = guess.charAt(i).toUpperCase()
                             tempData["l"+ i] = {"letter": currentLetter,"result": data.result[i]}
-                            setKeyDictionary(keyDictionary.map(entry => {
-                                if (entry.key.toUpperCase() === currentLetter){
-                                    entry.state = data.result[i]
+                            for (let j = 0; j < keyDictionary.length; j++){
+                                if (keyDictionary[j].key.toUpperCase() === currentLetter){
+                                    keyDictionary[j].state = data.result[i]
                                 }
-                                return entry
-                            }))
+                        }
                         setResult([
                             ...letterData,
                             tempData
@@ -151,7 +149,7 @@ function Wordle({user}) {
         }
     };
     const handleKeyPress = (letter) => { 
-        if (guess.length < 5) {
+        if (guess.length < 6) {
             setGuess(`${guess}${letter}` )
         }
     }
@@ -180,7 +178,7 @@ function Wordle({user}) {
                 setResult(data.map(previousGuess => {
                     let tempData = {
                     }
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 0; i < 6; i++) {
                             let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
                             tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
                             for (let j = 0; j < keyDictionary.length; j++){
@@ -204,8 +202,8 @@ function Wordle({user}) {
                     type="text"
                     value={guess}
                     onChange={(e) => setGuess(e.target.value)}
-                    minLength={5}
-                    maxLength={5}
+                    minLength={6}
+                    maxLength={6}
                 />
                 <button disabled={isDisabled && !allowSend} onClick={handleGuess}>Submit Guess</button>	
                 <table className="guessTable">{letterData.map(entry => (

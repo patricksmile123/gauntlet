@@ -50,5 +50,5 @@ class UserAchievement(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     achievement_id = db.Column(db.Integer, db.ForeignKey('achievements.achievement_id'), nullable=False)
     date_achieved = db.Column(db.DateTime, nullable=False)
-    user = db.relationship('User', back_populates='achievements')
+    user = db.relationship('User', back_populates='achievements')   
     achievement = db.relationship('Achievement', back_populates='user_achievements')
