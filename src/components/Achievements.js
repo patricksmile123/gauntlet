@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './Achievements.css';
 
 function Achievements ({user}) {
-    const [achievement, setAchievement] = useState([]);
+    const [userAchievements, setUserAchievements] = useState([]);
+    const [allAchievements, setAllAchievements] = useState([]);
     console.log(`Achievements ${JSON.stringify(user)}`)
     
     useEffect(() => {
@@ -22,7 +23,21 @@ function Achievements ({user}) {
                 if (response.ok) {
                     const data = await response.json();
                     console.log(data);
-                    setAchievement(data);
+                    setUserAchievements(data);
+                } else {
+                    console.log('An error occurred while fetching the achievements');
+                }
+                const response2 = await fetch('/api/achievements', {
+                    method: 'GET',
+                    headers: {
+                        'authorization': `Bearer ${user.token}`,
+                    },
+                });
+
+                if (response2.ok) {
+                    const data = await response2.json();
+                    console.log(data);
+                    setAllAchievements(data);
                 } else {
                     console.log('An error occurred while fetching the achievements');
                 }
@@ -37,9 +52,8 @@ function Achievements ({user}) {
         <div>
             <h1 className="AchievementHeader">Achievements</h1>
             <ul className="AchievementList">
-                {achievement.map((achievement, idx) => (
-                    <li className="AchievementData" key={idx}> {achievement}</li>
-                    
+                {allAchievements.sort().map((achievement, idx) => (
+                    <li className={`AchievementData${userAchievements.indexOf(achievement) === -1 ? " not-achieved" : ""}`} key={idx}> {achievement}</li>
                 ))}
             </ul>
         </div>

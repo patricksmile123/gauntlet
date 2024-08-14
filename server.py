@@ -285,3 +285,7 @@ def achievement_getter():
         print(traceback.format_exc())
         return jsonify({"error": "Invalid token"}), 400
     
+@app.route('/api/achievements', methods=['GET'])
+def achievements():
+    achievements = Achievement.query.all()
+    return jsonify([achievement.name for achievement in achievements])

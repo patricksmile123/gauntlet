@@ -14,7 +14,16 @@
 }
 
 .AchievementData {
-    background-color: #444;
+    background-color: #858585;
+    color: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.not-achieved {
+    background-color: #444 !important;
     color: #ffffff;
     padding: 15px;
     margin-bottom: 10px;

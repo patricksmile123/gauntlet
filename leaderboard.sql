@@ -2,6 +2,7 @@ WITH scored_games AS (
     SELECT g.game_id, g.user_id, COUNT(1) AS score, g.start_time, g.end_time
     FROM games g 
     INNER JOIN wordle_guess w ON w.game_id = g.game_id
+    WHERE g.outcome is not null
     GROUP BY g.game_id, g.user_id, g.start_time, g.end_time
 )
 SELECT u.firstname,
