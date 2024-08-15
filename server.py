@@ -1,7 +1,7 @@
 from ast import parse
 from flask import Flask, request, jsonify, send_from_directory
 import random
-from models import User, Game, WordleGuess, Achievement, UserAchievement
+from models import User, Game, WordleGuess, Achievement, UserAchievement, SharedGame
 from application import app
 from forms import RegistrationForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,6 +11,7 @@ from datetime import datetime
 import traceback
 from sqlalchemy import text
 import time
+import uuid
 
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
@@ -31,6 +32,13 @@ def parseResult(guess, answer):
 @app.route('/api/createGame', methods=['GET'])
 def createGame():
     authoHeader = request.headers.get('authorization')
+    answer=random.choice(WORD_LIST)
+    if request.headers.get('shareduuid'):
+        uuid = request.headers.get('shareduuid')
+        sharedGame = SharedGame.query.filter_by(uuid=uuid).first()
+        if sharedGame != None:
+            answer = sharedGame.answer
+    
     token = authoHeader.split(" ")[1]
     try:
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
@@ -40,7 +48,7 @@ def createGame():
             newGame = Game(
                 user_id=user.user_id,
                 start_time=datetime.now(),
-                answer=random.choice(WORD_LIST)
+                answer = answer
             )
             db.session.add(newGame)
             print("Answer: " + newGame.answer)
@@ -289,3 +297,18 @@ def achievement_getter():
 def achievements():
     achievements = Achievement.query.all()
     return jsonify([achievement.name for achievement in achievements])
+
+@app.route('/api/createSharedGame', methods=['POST'])
+def createSharedGame():
+    createGameUuid = str(uuid.uuid4())
+    data = request.get_json()
+    if not data or 'answer' not in data:
+        return jsonify({"error": "Invalid input"}), 400
+    answer = data['answer']
+    newSharedGame = SharedGame(
+        uuid=createGameUuid,
+        answer=answer
+    )
+    db.session.add(newSharedGame)
+    db.session.commit()
+    return jsonify({"uuid": createGameUuid})

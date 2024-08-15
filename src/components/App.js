@@ -32,6 +32,7 @@ function App() {
 				<Route path="/wordle" element={<Wordle user={user} />} />
 				<Route path="/achievements" element={<Achievements user={user} />} />
 				<Route path="/leaderboard" element={<Leaderboard user={user} />} />
+				<Route path="/shared/*" element={<Wordle user={user} />} />
 			</>}
 			{!(user.username) && <>
 				<Route path="/signup" element={<Signup user={user} />}/>

@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import Tooltip from '@mui/material/Tooltip';
 
 const style = {
     position: 'absolute',
@@ -59,12 +60,31 @@ function Wordle({user}) {
     ]);
 
     const { enqueueSnackbar } = useSnackbar();
+    
+    const share = async () => {
+        try {
+            const response = await fetch('/api/createSharedGame', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ answer: answer})
+            })
+            if (response.ok) {
+                const data = await response.json();
+                navigator.clipboard.writeText(`${window.location.origin}/shared/${data.uuid}`)
+                enqueueSnackbar('Link copied to clipboard')
+            }
+        }
+        catch (error) {
+            console.error(error)
+        }
+    }
 
     useEffect(() => {
         const fetchData = async () => {
         const response = await fetch('/api/createGame', {
             method: 'GET',
-            headers: { 
+            headers: {
+                'shareduuid' : window.location.pathname.split("/").pop(),
                 'authorization': `Bearer ${user.token}`
             },
         });
@@ -121,6 +141,7 @@ function Wordle({user}) {
                     }
                     if (data.result.every(val=>val === "correct")){
                         setIsWin(true)
+                        setAnswer(guess)
                         setShowOutcomeModal(true)
                         setDisabled(true)
                     }
@@ -238,6 +259,7 @@ function Wordle({user}) {
                     You get nothing. You lose (or win, not decided yet). Good day sir.
                 </Typography>
                 <Button onClick={playAgain}>Play Again</Button>
+                <Tooltip title="Copy share link to clipboard" placement="top"><Button onClick={share}>Share this game</Button></Tooltip>
                 <button onClick={() => setShowOutcomeModal(false)}>Close</button>
                 </Box>
             </Modal>

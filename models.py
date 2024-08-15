@@ -52,3 +52,9 @@ class UserAchievement(db.Model):
     date_achieved = db.Column(db.DateTime, nullable=False)
     user = db.relationship('User', back_populates='achievements')   
     achievement = db.relationship('Achievement', back_populates='user_achievements')
+
+class SharedGame(db.Model):
+    __tablename__= 'shared_game'
+    sharedGameID = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    uuid = db.Column(db.String(36), nullable=False)
+    answer = db.Column(db.String(10), nullable=False)
