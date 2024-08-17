@@ -62,6 +62,7 @@ function WordleN({user}) {
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
+        console.log('Entered Use Effect')
         const fetchData = async () => {
         const response = await fetch('/api/createGameN', {
             method: 'GET',
@@ -88,7 +89,7 @@ function WordleN({user}) {
             }));
         }}
         fetchData().catch(console.error);
-    }, [wordLength])
+    }, [])
 
     const backspace = () => {
         setGuess(guess.slice(0, -1))
@@ -201,9 +202,6 @@ function WordleN({user}) {
         <div className="App">
             <header className="App-header">
                 <h1>Wordle</h1>
-                <button onClick={setWordLength(6)}>Set Word Length to 6</button>
-                <button onClick={setWordLength(7)}>Set Word Length to 7</button>
-                <button onClick={setWordLength(8)}>Set Word Length to 8</button>
                 <input
                     type="text"
                     value={guess}
@@ -229,6 +227,9 @@ function WordleN({user}) {
                     <Typography variant='h6'>The answer was {answer}</Typography>
                     </>
                 ):(<div></div>)}
+                <button onClick={() => setWordLength(6)}>Set Word Length to 6</button>
+                <button onClick={() => setWordLength(7)}>Set Word Length to 7</button>
+                <button onClick={() => setWordLength(8)}>Set Word Length to 8</button>
             </header>
             <Keyboard handleGuess={handleGuess} backspace={backspace} keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
             <Modal

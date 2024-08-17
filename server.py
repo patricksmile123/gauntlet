@@ -22,6 +22,8 @@ WORD_LIST8 = open("wordle_words8.txt").read().splitlines()
 
 def parseResult(guess, answer):
     result = []
+    print(guess)
+    print(answer)
     for i in range(len(guess)):
         if guess[i] == answer[i]:
             result.append('correct')
@@ -188,7 +190,7 @@ def guess():
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "win"
-        elif guessCount >= len(currentGame.answer):
+        elif guessCount+1 >= len(currentGame.answer):
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "loss"

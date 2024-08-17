@@ -11,6 +11,7 @@ const Navbar = ({user, setUser, location}) => {
         <nav className='navbar'>
             <ul>
                 {user.username && <li className={location === "/wordle" ? "active-breadcrumb" : undefined}><a href="/wordle">Play</a></li>}
+                {user.username && <li className={location === "/wordleN" ? "active-breadcrumb" : undefined}><a href="/wordleN">6,7,8 Letter Wordle</a></li>}
                 {user.username && <li className={location === "/achievements" ? "active-breadcrumb" : undefined}><a href="/achievements">Achievements</a></li>}
                 <li className={location === "/leaderboard" ? "active-breadcrumb" : undefined}><a href="/leaderboard">Leaderboard</a></li>
                 {!user.username && <li className={location === "/login" ? "active-breadcrumb" : undefined}><a href="/login">Login</a></li>}
