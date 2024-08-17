@@ -66,7 +66,8 @@ function Wordle({user}) {
         const response = await fetch('/api/createGame', {
             method: 'GET',
             headers: { 
-                'authorization': `Bearer ${user.token}`
+                'authorization': `Bearer ${user.token}`,
+                'wordLength' : wordLength
             },
         });
         if (response.ok) {
@@ -74,7 +75,7 @@ function Wordle({user}) {
             setResult(data.map(previousGuess => {
                 let tempData = {
                 }
-                for (let i = 0; i < 6; i++) {
+                for (let i = 0; i < wordLength; i++) {
                         let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
                         tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
                         for (let j = 0; j < keyDictionary.length; j++){
@@ -130,7 +131,7 @@ function Wordle({user}) {
                         setShowOutcomeModal(true)
                         setDisabled(true)
                     }
-                    for (let i = 0; i < 6; i++) {
+                    for (let i = 0; i < wordLength; i++) {
                             let currentLetter = guess.charAt(i).toUpperCase()
                             tempData["l"+ i] = {"letter": currentLetter,"result": data.result[i]}
                             for (let j = 0; j < keyDictionary.length; j++){
@@ -150,7 +151,7 @@ function Wordle({user}) {
         }
     };
     const handleKeyPress = (letter) => { 
-        if (guess.length < 6) {
+        if (guess.length < wordLength) {
             setGuess(`${guess}${letter}` )
         }
     }
@@ -171,7 +172,8 @@ function Wordle({user}) {
             const response = await fetch('/api/createGame', {
                 method: 'GET',
                 headers: { 
-                    'authorization': `Bearer ${user.token}`
+                    'authorization': `Bearer ${user.token}`,
+                    'wordLength' : wordLength
                 },
             });
             if (response.ok) {
@@ -179,7 +181,7 @@ function Wordle({user}) {
                 setResult(data.map(previousGuess => {
                     let tempData = {
                     }
-                    for (let i = 0; i < 6; i++) {
+                    for (let i = 0; i < wordLength; i++) {
                             let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
                             tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
                             for (let j = 0; j < keyDictionary.length; j++){
@@ -199,12 +201,15 @@ function Wordle({user}) {
         <div className="App">
             <header className="App-header">
                 <h1>Wordle</h1>
+                <button onClick={setWordLength(6)}>Set Word Length to 6</button>
+                <button onClick={setWordLength(7)}>Set Word Length to 7</button>
+                <button onClick={setWordLength(8)}>Set Word Length to 8</button>
                 <input
                     type="text"
                     value={guess}
                     onChange={(e) => setGuess(e.target.value)}
-                    minLength={6}
-                    maxLength={6}
+                    minLength={wordLength}
+                    maxLength={wordLength}
                 />
                 <button disabled={isDisabled && !allowSend} onClick={handleGuess}>Submit Guess</button>	
                 <table className="guessTable">{letterData.map(entry => (
@@ -234,7 +239,7 @@ function Wordle({user}) {
             >
                 <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
-                    You get nothing. You lose (or win, not decided yet). Good day sir.
+                    isWin? "You Won, congratulations!" : "You Lost, better luck next time!"
                 </Typography>
                 <Button onClick={playAgain}>Play Again</Button>
                 <button onClick={() => setShowOutcomeModal(false)}>Close</button>
