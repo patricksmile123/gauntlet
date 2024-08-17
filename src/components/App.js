@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, json } from 'react-router-dom';
 import Wordle from './Wordle';
+import WordleN from './WordleN';
 import './App.css';
 import Signup from './Signup';
 import Login from './Login';
@@ -32,6 +33,7 @@ function App() {
 				<Route path="/wordle" element={<Wordle user={user} />} />
 				<Route path="/achievements" element={<Achievements user={user} />} />
 				<Route path="/leaderboard" element={<Leaderboard user={user} />} />
+				<Route path="/wordleN" element={<WordleN user={user} />} />
 				<Route path="/shared/*" element={<Wordle user={user} />} />
 			</>}
 			{!(user.username) && <>

@@ -16,7 +16,9 @@ import uuid
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
 LEADERBOARD_QUERY = open("leaderboard.sql").read()
-WORD_LIST6 = 0
+WORD_LIST6 = open("wordle_words6.txt").read().splitlines()
+WORD_LIST7 = open("wordle_words7.txt").read().splitlines()
+WORD_LIST8 = open("wordle_words8.txt").read().splitlines()
 
 def parseResult(guess, answer):
     result = []
@@ -64,10 +66,17 @@ def createGame():
         return jsonify({"error": "Invalid token"}), 400
     
 @app.route('/api/createGame6', methods=['GET'])
-def createGame6():
+def createGameN():
     authoHeader = request.headers.get('authorization')
     token = authoHeader.split(" ")[1]
+    wordLength = request.headers.get('wordLength')
     try:
+        if wordLength == '6':
+            answer=random.choice(WORD_LIST6)
+        elif wordLength == '7':
+            answer=random.choice(WORD_LIST7)
+        elif wordLength == '8':
+            answer=random.choice(WORD_LIST8)
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
         currentGame = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).first()
@@ -75,7 +84,7 @@ def createGame6():
             newGame = Game(
                 user_id=user.user_id,
                 start_time=datetime.now(),
-                answer=random.choice(WORD_LIST)
+                answer=answer
             )
             db.session.add(newGame)
             print("Answer: " + newGame.answer)

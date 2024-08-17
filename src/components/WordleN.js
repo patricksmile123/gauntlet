@@ -19,7 +19,7 @@ const style = {
     p: 4,
 };
 
-function Wordle({user}) {
+function WordleN({user}) {
     console.log(`Wordle ${JSON.stringify(user)}`)
     const [guess, setGuess] = useState("");
     const [letterData, setResult] = useState([]);
@@ -63,7 +63,7 @@ function Wordle({user}) {
 
     useEffect(() => {
         const fetchData = async () => {
-        const response = await fetch('/api/createGame', {
+        const response = await fetch('/api/createGameN', {
             method: 'GET',
             headers: { 
                 'authorization': `Bearer ${user.token}`,
@@ -249,4 +249,4 @@ function Wordle({user}) {
         </SnackbarProvider>
     );
 }
-    export default Wordle;
+    export default WordleN;
