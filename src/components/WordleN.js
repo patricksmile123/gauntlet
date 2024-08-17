@@ -57,6 +57,7 @@ function Wordle({user}) {
         { "key": "N", "state": "" },
         { "key": "M", "state": "" }
     ]);
+    const [wordLength, setWordLength] = useState(0)
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -86,7 +87,7 @@ function Wordle({user}) {
             }));
         }}
         fetchData().catch(console.error);
-    }, [])
+    }, [wordLength])
 
     const backspace = () => {
         setGuess(guess.slice(0, -1))
