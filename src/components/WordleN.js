@@ -21,7 +21,7 @@ const style = {
     p: 4,
 };
 
-function WordleN({user, setWordLength, wordLength}) {
+function WordleN({user, setWordLength, wordLength, uuid}) {
     const [guess, setGuess] = useState("");
     const [letterData, setResult] = useState([]);
     const [isLoss, setIsLoss] = useState(false)
@@ -61,14 +61,21 @@ function WordleN({user, setWordLength, wordLength}) {
     const [isDisabled2, setDisabled2] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
-    const createGame = async () => {
+    const createGame = async (length) => {
+        console.log(wordLength)
+        console.log(uuid)
+        if (wordLength == 0 && uuid == "" && length == undefined) {
+            console.log("I'm Returning")
+            return
+        }
+        const lengthToUse = length == undefined ? wordLength : length
         const fetchData = async () => {
         const response = await fetch('/api/createGameN', {
             method: 'GET',
             headers: { 
                 'authorization': `Bearer ${user.token}`,
-                'wordLength' : wordLength,
-                'shareduuid' : window.location.pathname.split("/").pop()
+                'wordLength' : lengthToUse,
+                'shareduuid' : uuid
             },
         });
         if (response.ok) {
@@ -76,7 +83,7 @@ function WordleN({user, setWordLength, wordLength}) {
             setResult(data.map(previousGuess => {
                 let tempData = {
                 }
-                for (let i = 0; i < wordLength; i++) {
+                for (let i = 0; i < lengthToUse; i++) {
                         let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
                         tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
                         for (let j = 0; j < keyDictionary.length; j++){
@@ -112,11 +119,14 @@ function WordleN({user, setWordLength, wordLength}) {
     useEffect(() => {
         console.log('Entered Use Effect')
         createGame()
-    }, [wordLength])
+    }, [])
     
     const handleSetWordLength = (length) => {
-        setWordLength(length);
+        console.log("Setting Word Length " + length)
+        setWordLength(parseInt(length));
         setDisabled2(true);
+        createGame(length)
+        console.log('Word Length Set')
       };
     const backspace = () => {
         setGuess(guess.slice(0, -1))

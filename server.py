@@ -75,13 +75,16 @@ def createGameN():
     authoHeader = request.headers.get('authorization')
     token = authoHeader.split(" ")[1]
     wordLength = request.headers.get('wordLength')
+    sharedGame = None
     if request.headers.get('shareduuid'):
         uuid = request.headers.get('shareduuid')
         sharedGame = SharedGame.query.filter_by(uuid=uuid).first()
 
+
     try:
         if sharedGame != None:
             answer = sharedGame.answer
+            wordLength = len(sharedGame.answer)
         elif wordLength == '6':
             answer=random.choice(WORD_LIST6)
         elif wordLength == '7':
@@ -89,6 +92,7 @@ def createGameN():
         elif wordLength == '8':
             answer=random.choice(WORD_LIST8)
         print(answer)
+        
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
         currentGames = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).all()
@@ -104,7 +108,6 @@ def createGameN():
             )
             print (answer)
             db.session.add(newGame)
-            print("Answer: " + newGame.answer)
             db.session.commit()
             return jsonify(newGame.game_id)
         else:
@@ -335,7 +338,7 @@ def createSharedGame():
     data = request.get_json()
     if not data or 'answer' not in data:
         return jsonify({"error": "Invalid input"}), 400
-    answer = data['answer']
+    answer = data['answer'].lower()
     newSharedGame = SharedGame(
         uuid=createGameUuid,
         answer=answer

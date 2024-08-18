@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, json, useSearchParams } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, json, useSearchParams, useLocation } from 'react-router-dom';
 import Wordle from './Wordle';
 import WordleN from './WordleN';
 import './App.css';
@@ -22,7 +22,10 @@ function App() {
 		JSON.stringify(user) === "{}" && localStorage.getItem("user") && setUser(JSON.parse(localStorage.getItem("user")))
 		JSON.stringify(user) !== "{}" && localStorage.setItem("user", JSON.stringify(user))
 	}, [user]);
-
+	let query = ""
+	if (location.startsWith("/shared")) {
+		query = location.split("/").pop();
+	}
 	return (
 		<><Navbar user={user} setUser={setUser} location={location}/>
 		<SnackbarProvider maxSnack={10}>
@@ -33,8 +36,8 @@ function App() {
 				<Route path="/wordle" element={<Wordle user={user} />} />
 				<Route path="/achievements" element={<Achievements user={user} />} />
 				<Route path="/leaderboard" element={<Leaderboard user={user} />} />
-				<Route path="/wordleN" element={<WordleN user={user} setWordLength={setWordLength} wordLength={wordLength} />} />
-				<Route path="/shared/*" element={<Navigate to={"/wordleN"} replace />} />
+				<Route path="/wordleN" element={<WordleN user={user} setWordLength={setWordLength} wordLength={wordLength} uuid = {query}/>} />
+				<Route path="/shared/*" element={<Navigate to={"/wordleN"} />} />
 			</>}
 			{!(user.username) && <>
 				<Route path="/signup" element={<Signup user={user} />}/>
