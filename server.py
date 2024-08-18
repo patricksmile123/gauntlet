@@ -22,7 +22,6 @@ WORD_LIST8 = open("wordle_words8.txt").read().splitlines()
 
 def parseResult(guess, answer):
     result = []
-    print(guess)
     print(answer)
     for i in range(len(guess)):
         if guess[i] == answer[i]:
@@ -76,6 +75,11 @@ def createGameN():
     authoHeader = request.headers.get('authorization')
     token = authoHeader.split(" ")[1]
     wordLength = request.headers.get('wordLength')
+    if request.headers.get('shareduuid'):
+        uuid = request.headers.get('shareduuid')
+        sharedGame = SharedGame.query.filter_by(uuid=uuid).first()
+        if sharedGame != None:
+            answer = sharedGame.answer
     try:
         if wordLength == '6':
             answer=random.choice(WORD_LIST6)
@@ -96,6 +100,7 @@ def createGameN():
                 start_time=datetime.now(),
                 answer=answer
             )
+            print (answer)
             db.session.add(newGame)
             print("Answer: " + newGame.answer)
             db.session.commit()
@@ -182,28 +187,33 @@ def guess():
     try:
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
-        currentGame = Game.query.filter_by(user_id=user.user_id, outcome=None).order_by(Game.game_id.desc()).first()
         data = request.get_json()
         if not data or 'guess' not in data:
             return jsonify({"error": "Invalid input"}), 400
         guess = data['guess'].lower()
+        currentGames = Game.query.filter_by(user_id=user.user_id, outcome=None).order_by(Game.game_id.desc()).all()
+        currentGame = None
+        for game in currentGames:
+            if len(game.answer) == len(guess):
+                currentGame = game
         dbGuess = WordleGuess(
             game_id=currentGame.game_id,
             guess=guess,
             guess_time=datetime.now()
         )
         db.session.add(dbGuess)
-        guessCount = WordleGuess.query.filter_by(game_id=currentGame.game_id).count()
+        guessCount = WordleGuess.query.filter_by(game_id=game.game_id).count()
         if guess == currentGame.answer:
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "win"
-        elif guessCount+1 >= len(currentGame.answer):
+        elif guessCount+1 >= len(game.answer):
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "loss"
         result = parseResult(guess, currentGame.answer)
-        
+        print(guess)
+        print(currentGame.answer)
         newAchievements = [a.name for a in check_achievements(user, currentGame)]
         response = {"result": result, "guessCount": guessCount, "new_achievements": newAchievements}
         if (currentGame.outcome == "loss"):

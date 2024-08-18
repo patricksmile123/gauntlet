@@ -16,11 +16,11 @@ import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
 function App() {
 	const [user, setUser] = useState(localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {});
 	const [location, setLocation] = useState("");
+	const [wordLength, setWordLength] = useState(0)
 
 	useEffect(() => {
 		JSON.stringify(user) === "{}" && localStorage.getItem("user") && setUser(JSON.parse(localStorage.getItem("user")))
 		JSON.stringify(user) !== "{}" && localStorage.setItem("user", JSON.stringify(user))
-		console.log(`app ${JSON.stringify(user)}`)
 	}, [user]);
 
 	return (
@@ -33,8 +33,8 @@ function App() {
 				<Route path="/wordle" element={<Wordle user={user} />} />
 				<Route path="/achievements" element={<Achievements user={user} />} />
 				<Route path="/leaderboard" element={<Leaderboard user={user} />} />
-				<Route path="/wordleN" element={<WordleN user={user} />} />
-				<Route path="/shared/*" element={<Wordle user={user} />} />
+				<Route path="/wordleN" element={<WordleN user={user} setWordLength={setWordLength} wordLength={wordLength} />} />
+				<Route path="/shared/*" element={<Navigate to={wordLength === 5 ? "/wordle" : "/wordleN"} replace />} />
 			</>}
 			{!(user.username) && <>
 				<Route path="/signup" element={<Signup user={user} />}/>

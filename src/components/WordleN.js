@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import Tooltip from '@mui/material/Tooltip';
 
 const style = {
     position: 'absolute',
@@ -19,8 +20,7 @@ const style = {
     p: 4,
 };
 
-function WordleN({user}) {
-    console.log(`Wordle ${JSON.stringify(user)}`)
+function WordleN({user, setWordLength, wordLength}) {
     const [guess, setGuess] = useState("");
     const [letterData, setResult] = useState([]);
     const [isLoss, setIsLoss] = useState(false)
@@ -57,9 +57,30 @@ function WordleN({user}) {
         { "key": "N", "state": "" },
         { "key": "M", "state": "" }
     ]);
-    const [wordLength, setWordLength] = useState(0)
-
+    const [isDisabled2, setDisabled2] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
+    const share = async () => {
+        try {
+            const response = await fetch('/api/createSharedGame', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ answer: answer})
+            })
+            if (response.ok) {
+                const data = await response.json();
+                navigator.clipboard.writeText(`${window.location.origin}/shared/${data.uuid}`)
+                enqueueSnackbar('Link copied to clipboard')
+            }
+        }
+        catch (error) {
+            console.error(error)
+        }
+    }
+    
+    const handleSetWordLength = (length) => {
+        setWordLength(length);
+        setDisabled2(true);
+      };
 
     useEffect(() => {
         console.log('Entered Use Effect')
@@ -68,7 +89,8 @@ function WordleN({user}) {
             method: 'GET',
             headers: { 
                 'authorization': `Bearer ${user.token}`,
-                'wordLength' : wordLength
+                'wordLength' : wordLength,
+                'shareduuid' : window.location.pathname.split("/").pop()
             },
         });
         if (response.ok) {
@@ -207,7 +229,7 @@ function WordleN({user}) {
                     value={guess}
                     onChange={(e) => setGuess(e.target.value)}
                     minLength={wordLength}
-                    maxLength={wordLength}
+                    maxLength={wordLength} 
                 />
                 <button disabled={isDisabled && !allowSend} onClick={handleGuess}>Submit Guess</button>	
                 <table className="guessTable">{letterData.map(entry => (
@@ -230,9 +252,9 @@ function WordleN({user}) {
                     <Typography variant='h6'>The answer was {answer}</Typography>
                     </>
                 ):(<div></div>)}
-                <button onClick={() => setWordLength(6)}>Set Word Length to 6</button>
-                <button onClick={() => setWordLength(7)}>Set Word Length to 7</button>
-                <button onClick={() => setWordLength(8)}>Set Word Length to 8</button>
+                {!isDisabled2 && <button onClick={() => handleSetWordLength(6)} disabled={isDisabled2}>Set Word Length to 6</button>}
+                {!isDisabled2 && <button onClick={() => handleSetWordLength(7)} disabled={isDisabled2}>Set Word Length to 7</button>}
+                {!isDisabled2 && <button onClick={() => handleSetWordLength(8)} disabled={isDisabled2}>Set Word Length to 8</button>}
             </header>
             <Keyboard handleGuess={handleGuess} backspace={backspace} keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
             <Modal
@@ -243,10 +265,11 @@ function WordleN({user}) {
             >
                 <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
-                    isWin? "You Won, congratulations!" : "You Lost, better luck next time!"
+                    {isWin? "You Won, congratulations!" : "You Lost, better luck next time!"}
                 </Typography>
                 <Button onClick={playAgain}>Play Again</Button>
                 <button onClick={() => setShowOutcomeModal(false)}>Close</button>
+                <Tooltip title="Copy share link to clipboard" placement="top"><Button onClick={share}>Share this game</Button></Tooltip>
                 </Box>
             </Modal>
         </div>
