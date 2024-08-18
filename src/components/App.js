@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, json } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, json, useSearchParams } from 'react-router-dom';
 import Wordle from './Wordle';
 import WordleN from './WordleN';
 import './App.css';
@@ -16,7 +16,7 @@ import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
 function App() {
 	const [user, setUser] = useState(localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {});
 	const [location, setLocation] = useState("");
-	const [wordLength, setWordLength] = useState(0)
+	const [wordLength, setWordLength] = useState(0);
 
 	useEffect(() => {
 		JSON.stringify(user) === "{}" && localStorage.getItem("user") && setUser(JSON.parse(localStorage.getItem("user")))
@@ -34,7 +34,7 @@ function App() {
 				<Route path="/achievements" element={<Achievements user={user} />} />
 				<Route path="/leaderboard" element={<Leaderboard user={user} />} />
 				<Route path="/wordleN" element={<WordleN user={user} setWordLength={setWordLength} wordLength={wordLength} />} />
-				<Route path="/shared/*" element={<Navigate to={wordLength === 5 ? "/wordle" : "/wordleN"} replace />} />
+				<Route path="/shared/*" element={<Navigate to={"/wordleN"} replace />} />
 			</>}
 			{!(user.username) && <>
 				<Route path="/signup" element={<Signup user={user} />}/>

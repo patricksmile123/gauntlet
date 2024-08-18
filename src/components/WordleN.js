@@ -91,9 +91,6 @@ function WordleN({user, setWordLength, wordLength}) {
         fetchData().catch(console.error);
     }
 
-    // if wordLength === 0 {
-    // }
-
     const share = async () => {
         try {
             const response = await fetch('/api/createSharedGame', {
@@ -110,12 +107,6 @@ function WordleN({user, setWordLength, wordLength}) {
         catch (error) {
             console.error(error)
         }
-    }
-    const shareduuid = window.location.pathname.split("/").pop()
-
-    if (!shareduuid.startsWith("wordle")) {
-        createGame()
-        console.log('Shared UUID:', shareduuid)
     }
 
     useEffect(() => {
