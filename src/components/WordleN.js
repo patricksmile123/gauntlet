@@ -89,7 +89,7 @@ function WordleN({user}) {
             }));
         }}
         fetchData().catch(console.error);
-    }, [])
+    }, [wordLength])
 
     const backspace = () => {
         setGuess(guess.slice(0, -1))
@@ -99,7 +99,7 @@ function WordleN({user}) {
         if (allowSend) {
             setAllowSend(false)
             try {
-                if (guess.length !== 6){
+                if (guess.length !== wordLength){
                     return
                 }
                 const response = await fetch('/api/guess', {
@@ -170,7 +170,7 @@ function WordleN({user}) {
             return entry
         }))
         const fetchData = async () => {
-            const response = await fetch('/api/createGame', {
+            const response = await fetch('/api/createGameN', {
                 method: 'GET',
                 headers: { 
                     'authorization': `Bearer ${user.token}`,
@@ -217,6 +217,9 @@ function WordleN({user}) {
                         <td className={entry.l2.result}>{entry.l2.letter}</td>
                         <td className={entry.l3.result}>{entry.l3.letter}</td>
                         <td className={entry.l4.result}>{entry.l4.letter}</td>
+                        {wordLength >= 6 && <td className={entry.l5.result}>{entry.l5.letter}</td>}
+                        {wordLength >= 7 && <td className={entry.l6.result}>{entry.l6.letter}</td>}
+                        {wordLength >= 8 && <td className={entry.l7.result}>{entry.l7.letter}</td>}
                     </tr>))}
                 </table>
                 {isWin? (

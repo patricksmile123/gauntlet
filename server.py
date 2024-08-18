@@ -47,7 +47,11 @@ def createGame():
     try:
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
-        currentGame = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).first()
+        currentGames = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).all()
+        currentGame = None
+        for game in currentGames:
+            if len(game.answer) == 5:
+                currentGame = game
         if currentGame == None:
             newGame = Game(
                 user_id=user.user_id,
@@ -67,7 +71,7 @@ def createGame():
         print(traceback.format_exc())
         return jsonify({"error": "Invalid token"}), 400
     
-@app.route('/api/createGame6', methods=['GET'])
+@app.route('/api/createGameN', methods=['GET'])
 def createGameN():
     authoHeader = request.headers.get('authorization')
     token = authoHeader.split(" ")[1]
@@ -81,7 +85,11 @@ def createGameN():
             answer=random.choice(WORD_LIST8)
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
-        currentGame = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).first()
+        currentGames = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).all()
+        currentGame = None
+        for game in currentGames:
+            if len(game.answer) == int(wordLength):
+                currentGame = game
         if currentGame == None:
             newGame = Game(
                 user_id=user.user_id,
