@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Tooltip from '@mui/material/Tooltip';
+import { create } from '@mui/material/styles/createTransitions';
 
 const style = {
     position: 'absolute',
@@ -59,31 +60,8 @@ function WordleN({user, setWordLength, wordLength}) {
     ]);
     const [isDisabled2, setDisabled2] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
-    const share = async () => {
-        try {
-            const response = await fetch('/api/createSharedGame', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ answer: answer})
-            })
-            if (response.ok) {
-                const data = await response.json();
-                navigator.clipboard.writeText(`${window.location.origin}/shared/${data.uuid}`)
-                enqueueSnackbar('Link copied to clipboard')
-            }
-        }
-        catch (error) {
-            console.error(error)
-        }
-    }
-    
-    const handleSetWordLength = (length) => {
-        setWordLength(length);
-        setDisabled2(true);
-      };
 
-    useEffect(() => {
-        console.log('Entered Use Effect')
+    const createGame = async () => {
         const fetchData = async () => {
         const response = await fetch('/api/createGameN', {
             method: 'GET',
@@ -111,8 +89,44 @@ function WordleN({user, setWordLength, wordLength}) {
             }));
         }}
         fetchData().catch(console.error);
-    }, [wordLength])
+    }
 
+    // if wordLength === 0 {
+    // }
+
+    const share = async () => {
+        try {
+            const response = await fetch('/api/createSharedGame', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ answer: answer})
+            })
+            if (response.ok) {
+                const data = await response.json();
+                navigator.clipboard.writeText(`${window.location.origin}/shared/${data.uuid}`)
+                enqueueSnackbar('Link copied to clipboard')
+            }
+        }
+        catch (error) {
+            console.error(error)
+        }
+    }
+    const shareduuid = window.location.pathname.split("/").pop()
+
+    if (!shareduuid.startsWith("wordle")) {
+        createGame()
+        console.log('Shared UUID:', shareduuid)
+    }
+
+    useEffect(() => {
+        console.log('Entered Use Effect')
+        createGame()
+    }, [wordLength])
+    
+    const handleSetWordLength = (length) => {
+        setWordLength(length);
+        setDisabled2(true);
+      };
     const backspace = () => {
         setGuess(guess.slice(0, -1))
     }
@@ -145,6 +159,7 @@ function WordleN({user, setWordLength, wordLength}) {
                     }
                     if (data.result.every(val=>val === "correct")){
                         setIsWin(true)
+                        setAnswer(guess)
                         setShowOutcomeModal(true)
                         setDisabled(true)
                     }

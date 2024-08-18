@@ -78,15 +78,17 @@ def createGameN():
     if request.headers.get('shareduuid'):
         uuid = request.headers.get('shareduuid')
         sharedGame = SharedGame.query.filter_by(uuid=uuid).first()
+
+    try:
         if sharedGame != None:
             answer = sharedGame.answer
-    try:
-        if wordLength == '6':
+        elif wordLength == '6':
             answer=random.choice(WORD_LIST6)
         elif wordLength == '7':
             answer=random.choice(WORD_LIST7)
         elif wordLength == '8':
             answer=random.choice(WORD_LIST8)
+        print(answer)
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
         user = User.query.filter_by(username=decodedJwt['username']).first()
         currentGames = Game.query.filter_by(user_id=user.user_id).filter_by(outcome=None).order_by(Game.game_id.desc()).all()
