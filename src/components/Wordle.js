@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Keyboard from './Keyboard';
-import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
+import { SnackbarProvider } from 'notistack';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -21,12 +21,11 @@ const style = {
 };
 
 function Wordle({user}) {
-    console.log(`Wordle ${JSON.stringify(user)}`)
     const [guess, setGuess] = useState("");
+    const [gameId, setGameId] = useState(-1);
     const [letterData, setResult] = useState([]);
     const [isLoss, setIsLoss] = useState(false)
     const [isWin, setIsWin] = useState(false)
-    const [allowSend, setAllowSend] = useState(true)
     const [isDisabled, setDisabled] = useState(false)
     const [answer, setAnswer] = useState("")
     const [showOutcomeModal, setShowOutcomeModal] = useState(false)
@@ -59,38 +58,19 @@ function Wordle({user}) {
         { "key": "M", "state": "" }
     ]);
 
-    const { enqueueSnackbar } = useSnackbar();
-    
-    const share = async () => {
-        try {
-            const response = await fetch('/api/createSharedGame', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ answer: answer})
-            })
-            if (response.ok) {
-                const data = await response.json();
-                navigator.clipboard.writeText(`${window.location.origin}/shared/${data.uuid}`)
-                enqueueSnackbar('Link copied to clipboard')
-            }
-        }
-        catch (error) {
-            console.error(error)
-        }
-    }
-
-    useEffect(() => {
-        const fetchData = async () => {
+    const fetchData = async () => {
         const response = await fetch('/api/createGame', {
             method: 'GET',
-            headers: {
-                'shareduuid' : window.location.pathname.split("/").pop(),
-                'authorization': `Bearer ${user.token}`
-            },
+            headers: localStorage.getItem('gameId') ? {
+                'game_id': localStorage.getItem('gameId')
+            } : {},
         });
         if (response.ok) {
             const data = await response.json();
-            setResult(data.map(previousGuess => {
+            const gameId = data.game_id
+            setGameId(gameId)
+            localStorage.setItem('gameId', gameId)
+            setResult(data.guesses.map(previousGuess => {
                 let tempData = {
                 }
                 for (let i = 0; i < 5; i++) {
@@ -98,7 +78,7 @@ function Wordle({user}) {
                         tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
                         setKeyDictionary(keyDictionary.map(entry => {
                             if (entry.key.toUpperCase() === currentLetter){
-                                entry.state = data.result[i]
+                                entry.state = previousGuess.result[i]
                             }
                             return entry
                         }))
@@ -106,6 +86,7 @@ function Wordle({user}) {
                 return tempData
             }));
         }}
+    useEffect(() => {
         fetchData().catch(console.error);
     }, [])
 
@@ -114,60 +95,53 @@ function Wordle({user}) {
     }
 
     const handleGuess = async () => {
-        if (allowSend) {
-            try {
-                if (guess.length !== 5){
-                    return
-                }
-                const response = await fetch('/api/guess', {
-                    method: 'POST',
-                    headers: {
-                        'authorization': `Bearer ${user.token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ guess: guess})
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    data.new_achievements.forEach(achievement => {
-                        enqueueSnackbar(`🏆 ${achievement}`)
-                    })
-
-                    setGuess('')
-                    
-                    let tempData = {
-                    }
-                    if (data.result.every(val=>val === "correct")){
-                        setIsWin(true)
-                        setAnswer(guess)
-                        setShowOutcomeModal(true)
-                        setDisabled(true)
-                    }
-                    else if (data.guessCount >= 6){
-                        setIsLoss(true)
-                        setAnswer(data.answer)
-                        setShowOutcomeModal(true)
-                        setDisabled(true)
-                    }
-                    for (let i = 0; i < 5; i++) {
-                            let currentLetter = guess.charAt(i).toUpperCase()
-                            tempData["l"+ i] = {"letter": currentLetter,"result": data.result[i]}
-                            setKeyDictionary(keyDictionary.map(entry => {
-                                if (entry.key.toUpperCase() === currentLetter){
-                                    entry.state = data.result[i]
-                                }
-                                return entry
-                            }))
-                        setResult([
-                            ...letterData,
-                            tempData
-                        ])
-                    }
-                    setAllowSend(true)
-                }
-            } catch (error) {
+        try {
+            if (guess.length !== 5){
+                return
             }
+            const response = await fetch('/api/guess', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ guess: guess, game_id: gameId})
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                setGuess('')
+                
+                let tempData = {
+                }
+                if (data.result.every(val=>val === "correct")){
+                    setIsWin(true)
+                    setAnswer(guess)
+                    setShowOutcomeModal(true)
+                    setDisabled(true)
+                }
+                else if (data.guessCount >= 6){
+                    setIsLoss(true)
+                    setAnswer(data.answer)
+                    setShowOutcomeModal(true)
+                    setDisabled(true)
+                }
+                for (let i = 0; i < 5; i++) {
+                        let currentLetter = guess.charAt(i).toUpperCase()
+                        tempData["l"+ i] = {"letter": currentLetter,"result": data.result[i]}
+                        setKeyDictionary(keyDictionary.map(entry => {
+                            if (entry.key.toUpperCase() === currentLetter){
+                                entry.state = data.result[i]
+                            }
+                            return entry
+                        }))
+                    setResult([
+                        ...letterData,
+                        tempData
+                    ])
+                }
+            }
+        } catch (error) {
         }
     };
     const handleKeyPress = (letter) => { 
@@ -188,31 +162,7 @@ function Wordle({user}) {
             entry.state = ""
             return entry
         }))
-        const fetchData = async () => {
-            const response = await fetch('/api/createGame', {
-                method: 'GET',
-                headers: { 
-                    'authorization': `Bearer ${user.token}`
-                },
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setResult(data.map(previousGuess => {
-                    let tempData = {
-                    }
-                    for (let i = 0; i < 5; i++) {
-                            let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
-                            tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
-                            for (let j = 0; j < keyDictionary.length; j++){
-                                if (keyDictionary[j].key.toUpperCase() === currentLetter){
-                                    keyDictionary[j].state = previousGuess.result[i]
-                                }
-                        }
-                    }
-                    return tempData
-                }));
-            }}
-            fetchData().catch(console.error);
+        fetchData().catch(console.error);
     }
 
     return (
@@ -227,7 +177,7 @@ function Wordle({user}) {
                     minLength={5}
                     maxLength={5}
                 />
-                <button disabled={isDisabled && !allowSend} onClick={handleGuess}>Submit Guess</button>	
+                <button disabled={isDisabled} onClick={handleGuess}>Submit Guess</button>	
                 <table className="guessTable">{letterData.map(entry => (
                     <tr>
                         <td className={entry.l0.result}>{entry.l0.letter}</td>
@@ -254,7 +204,6 @@ function Wordle({user}) {
                     {isWin? "You Won, congratulations!" : "You Lost, better luck next time!"}
                 </Typography>
                 <Button onClick={playAgain}>Play Again</Button>
-                <Tooltip title="Copy share link to clipboard" placement="top"><Button onClick={share}>Share this game</Button></Tooltip>
                 <button onClick={() => setShowOutcomeModal(false)}>Close</button>
                 </Box>
             </Modal>
