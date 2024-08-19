@@ -210,18 +210,20 @@ def guess():
         )
         db.session.add(dbGuess)
         guessCount = WordleGuess.query.filter_by(game_id=currentGame.game_id).count()
+        newAchievements = []
         if guess == currentGame.answer:
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "win"
+            newAchievements = [a.name for a in check_achievements(user, currentGame)]
         elif guessCount >= len(currentGame.answer)+1:
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "loss"
+            newAchievements = [a.name for a in check_achievements(user, currentGame)]
         result = parseResult(guess, currentGame.answer)
         print(guess)
         print(currentGame.answer)
-        newAchievements = [a.name for a in check_achievements(user, currentGame)]
         response = {"result": result, "guessCount": guessCount, "new_achievements": newAchievements}
         if (currentGame.outcome == "loss"):
             response["answer"] = currentGame.answer

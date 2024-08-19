@@ -62,8 +62,6 @@ function WordleN({user, setWordLength, wordLength, uuid}) {
     const { enqueueSnackbar } = useSnackbar();
 
     const createGame = async (length) => {
-        console.log(wordLength)
-        console.log(uuid)
         if (wordLength == 0 && uuid == "" && length == undefined) {
             console.log("I'm Returning")
             return
@@ -298,7 +296,7 @@ function WordleN({user, setWordLength, wordLength, uuid}) {
                     {isWin? "You Won, congratulations!" : "You Lost, better luck next time!"}
                 </Typography>
                 <Button onClick={playAgain}>Play Again</Button>
-                <button onClick={() => setShowOutcomeModal(false)}>Close</button>
+                <button className="closeButton" onClick={() => setShowOutcomeModal(false)}>CLOSE</button>
                 <Tooltip title="Copy share link to clipboard" placement="top"><Button onClick={share}>Share this game</Button></Tooltip>
                 </Box>
             </Modal>

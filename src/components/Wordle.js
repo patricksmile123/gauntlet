@@ -95,11 +95,14 @@ function Wordle({user}) {
                 }
                 for (let i = 0; i < 5; i++) {
                         let currentLetter = previousGuess.guess.charAt(i).toUpperCase()
+                        console.log(currentLetter)
                         tempData["l"+ i] = {"letter": currentLetter,"result": previousGuess.result[i]}
+                        console.log(tempData)
                         setKeyDictionary(keyDictionary.map(entry => {
                             if (entry.key.toUpperCase() === currentLetter){
-                                entry.state = data.result[i]
+                                entry.state = previousGuess.result[i]
                             }
+                            console.log(entry)
                             return entry
                         }))
                 }
@@ -255,7 +258,7 @@ function Wordle({user}) {
                 </Typography>
                 <Button onClick={playAgain}>Play Again</Button>
                 <Tooltip title="Copy share link to clipboard" placement="top"><Button onClick={share}>Share this game</Button></Tooltip>
-                <button onClick={() => setShowOutcomeModal(false)}>Close</button>
+                <button className='closeButton' onClick={() => setShowOutcomeModal(false)}>CLOSE</button>
                 </Box>
             </Modal>
         </div>
