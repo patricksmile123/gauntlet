@@ -80,7 +80,6 @@ def createGameN():
         uuid = request.headers.get('shareduuid')
         sharedGame = SharedGame.query.filter_by(uuid=uuid).first()
 
-
     try:
         if sharedGame != None:
             answer = sharedGame.answer
@@ -91,6 +90,8 @@ def createGameN():
             answer=random.choice(WORD_LIST7)
         elif wordLength == '8':
             answer=random.choice(WORD_LIST8)
+        else:
+            return jsonify({"error": "No shared game found"}), 404
         print(answer)
         
         decodedJwt = jwt.decode(token, "s{$822Qcg!d*", algorithms=["HS256"])
@@ -109,11 +110,12 @@ def createGameN():
             print (answer)
             db.session.add(newGame)
             db.session.commit()
-            return jsonify(newGame.game_id)
+            response = {"wordLength": wordLength}   
+            return jsonify(response)
         else:
             currentGuesses = WordleGuess.query.filter_by(game_id = currentGame.game_id).order_by(WordleGuess.guess_time.asc()).all()
             currentGuesses = [{"guess": guess.guess, "result": parseResult(guess.guess, currentGame.answer)} for guess in currentGuesses]
-            return jsonify(currentGuesses)
+            return jsonify({"guesses": currentGuesses, "wordLength": wordLength})
 
     except:
         print(traceback.format_exc())
@@ -207,12 +209,12 @@ def guess():
             guess_time=datetime.now()
         )
         db.session.add(dbGuess)
-        guessCount = WordleGuess.query.filter_by(game_id=game.game_id).count()
+        guessCount = WordleGuess.query.filter_by(game_id=currentGame.game_id).count()
         if guess == currentGame.answer:
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "win"
-        elif guessCount+1 >= len(game.answer):
+        elif guessCount >= len(currentGame.answer)+1:
             currentGame.score = guessCount
             currentGame.end_time = datetime.now()
             currentGame.outcome = "loss"
@@ -227,7 +229,7 @@ def guess():
         return jsonify(response)
     except:
         print(traceback.format_exc())
-        return jsonify({"error": "Invalid token"}), 400
+        return jsonify({"error": "Some error has occured"}), 400
     
 
 

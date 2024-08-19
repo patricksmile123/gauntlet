@@ -14,7 +14,7 @@ const style = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
-    bgcolor: 'background.paper',
+    bgcolor: '#5c5470',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
@@ -115,7 +115,6 @@ function Wordle({user}) {
 
     const handleGuess = async () => {
         if (allowSend) {
-            setAllowSend(false)
             try {
                 if (guess.length !== 5){
                     return
@@ -145,7 +144,7 @@ function Wordle({user}) {
                         setShowOutcomeModal(true)
                         setDisabled(true)
                     }
-                    else if (data.guessCount >= 5){
+                    else if (data.guessCount >= 6){
                         setIsLoss(true)
                         setAnswer(data.answer)
                         setShowOutcomeModal(true)
@@ -237,12 +236,8 @@ function Wordle({user}) {
                         <td className={entry.l3.result}>{entry.l3.letter}</td>
                         <td className={entry.l4.result}>{entry.l4.letter}</td>
                     </tr>))}
-                </table>
-                {isWin? (
-                    <div>Win!</div>
-                ):(<div></div>)}				
+                </table>				
                 {isLoss? (<>
-                    <div>Loss</div>
                     <Typography variant='h6'>The answer was {answer}</Typography>
                     </>
                 ):(<div></div>)}
@@ -256,7 +251,7 @@ function Wordle({user}) {
             >
                 <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
-                    You get nothing. You lose (or win, not decided yet). Good day sir.
+                    {isWin? "You Won, congratulations!" : "You Lost, better luck next time!"}
                 </Typography>
                 <Button onClick={playAgain}>Play Again</Button>
                 <Tooltip title="Copy share link to clipboard" placement="top"><Button onClick={share}>Share this game</Button></Tooltip>
