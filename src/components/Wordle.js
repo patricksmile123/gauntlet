@@ -131,7 +131,9 @@ function Wordle({user}) {
                     body: JSON.stringify({ guess: guess})
                 });
 
-                if (response.ok) {
+                if (!response.ok) {
+                    alert('Your guess is not a valid word');
+                } else {
                     const data = await response.json();
                     data.new_achievements.forEach(achievement => {
                         enqueueSnackbar(`🏆 ${achievement}`)

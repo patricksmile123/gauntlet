@@ -12,6 +12,7 @@ import traceback
 from sqlalchemy import text
 import time
 import uuid
+from english_words import get_english_words_set
 
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
@@ -19,6 +20,7 @@ LEADERBOARD_QUERY = open("leaderboard.sql").read()
 WORD_LIST6 = open("wordle_words6.txt").read().splitlines()
 WORD_LIST7 = open("wordle_words7.txt").read().splitlines()
 WORD_LIST8 = open("wordle_words8.txt").read().splitlines()
+ENGLISH_WORDS = get_english_words_set(['web2'], lower=True)
 
 def parseResult(guess, answer):
     result = []
@@ -198,6 +200,8 @@ def guess():
         if not data or 'guess' not in data:
             return jsonify({"error": "Invalid input"}), 400
         guess = data['guess'].lower()
+        if guess not in ENGLISH_WORDS:
+            return jsonify({"error": "Invalid guess"}), 400
         currentGames = Game.query.filter_by(user_id=user.user_id, outcome=None).order_by(Game.game_id.desc()).all()
         currentGame = None
         for game in currentGames:

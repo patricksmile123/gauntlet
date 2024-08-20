@@ -159,7 +159,9 @@ function WordleN({user, setWordLength, wordLength, uuid}) {
                     },
                     body: JSON.stringify({ guess: guess})
                 });
-
+                if (!response.ok) {
+                    alert('Your guess is not a valid word');
+                } else {
                 if (response.ok) {
                     const data = await response.json();
                     data.new_achievements.forEach(achievement => {
@@ -196,7 +198,7 @@ function WordleN({user, setWordLength, wordLength, uuid}) {
                         ])
                     }
                     setAllowSend(true)
-                }
+                }}
             } catch (error) {
             }
         }
