@@ -8,6 +8,7 @@ import jwt
 from datetime import datetime
 import traceback
 from sqlalchemy import text
+from english_words import get_english_words_set
 
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
@@ -15,6 +16,7 @@ LEADERBOARD_QUERY = open("leaderboard.sql").read()
 WORD_LIST6 = open("wordle_words6.txt").read().splitlines()
 WORD_LIST7 = open("wordle_words7.txt").read().splitlines()
 WORD_LIST8 = open("wordle_words8.txt").read().splitlines()
+ENGLISH_WORDS = get_english_words_set(['web2'], lower=True)
 
 def parseResult(guess, answer):
     result = []
@@ -54,7 +56,9 @@ def guess():
         return jsonify({"error": "Invalid input"}), 400
     guess = data['guess'].lower()
     game_id = data['game_id']
-    currentGame = Game.query.filter_by(game_id=game_id).order_by(Game.game_id.desc()).first() 
+    currentGame = Game.query.filter_by(game_id=game_id).order_by(Game.game_id.desc()).first()
+    if guess not in ENGLISH_WORDS:
+        return jsonify({"error": "Invalid guess"}), 400
     dbGuess = WordleGuess(
         game_id=currentGame.game_id,
         guess=guess,

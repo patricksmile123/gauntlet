@@ -106,7 +106,12 @@ function Wordle({user}) {
                 },
                 body: JSON.stringify({ guess: guess, game_id: gameId})
             });
-
+            
+            if (!response.ok) {
+                alert('Your guess is not a valid word');
+            }
+            else{
+                
             if (response.ok) {
                 const data = await response.json();
 
@@ -141,7 +146,7 @@ function Wordle({user}) {
                     ])
                 }
             }
-        } catch (error) {
+        }} catch (error) {
         }
     };
     const handleKeyPress = (letter) => { 
