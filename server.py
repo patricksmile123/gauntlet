@@ -73,10 +73,7 @@ def guess():
     guess = data['guess'].lower()
     game_id = data['game_id']
     currentGame = Game.query.filter_by(game_id=game_id).order_by(Game.game_id.desc()).first()
-    # if guess not in ENGLISH_WORDS:
-    #     return jsonify({"error": "Invalid guess"}), 400
-    checker = enchant.Dict("en_US")
-    if checker.check(guess) == False:
+    if guess not in ENGLISH_WORDS:
         return jsonify({"error": "Invalid guess"}), 400
     dbGuess = WordleGuess(
         game_id=currentGame.game_id,
