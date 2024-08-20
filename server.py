@@ -13,7 +13,6 @@ from sqlalchemy import text
 import time
 import uuid
 from english_words import get_english_words_set
-import enchant
 
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
