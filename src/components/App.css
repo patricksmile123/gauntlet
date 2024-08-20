@@ -38,6 +38,10 @@ html {
       text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
       font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     }
+
+    @media screen and (max-width: 700px){
+      display: none;
+    }
   }
 
   input {
