@@ -9,7 +9,6 @@ from datetime import datetime
 import traceback
 from sqlalchemy import text
 from english_words import get_english_words_set
-import enchant
 
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
