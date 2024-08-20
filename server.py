@@ -13,6 +13,7 @@ from sqlalchemy import text
 import time
 import uuid
 from english_words import get_english_words_set
+import enchant
 
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
@@ -23,15 +24,30 @@ WORD_LIST8 = open("wordle_words8.txt").read().splitlines()
 ENGLISH_WORDS = get_english_words_set(['web2'], lower=True)
 
 def parseResult(guess, answer):
+    confirmed_correct = [''] * len(answer)
     result = []
-    print(answer)
+    letterCount = {}
+
+    for i in range(len(guess)):
+        if guess[i] == answer[i]:
+            confirmed_correct[i] = guess[i]
+
+    for letter in answer:
+        letterCount[letter] = letterCount.get(letter, 0) + 1
+
+    for i, letter in enumerate(confirmed_correct):
+        if letter:
+            letterCount[letter] -= 1
+
     for i in range(len(guess)):
         if guess[i] == answer[i]:
             result.append('correct')
-        elif guess[i] in answer:
+        elif guess[i] in answer and letterCount[guess[i]] > 0:
             result.append('present')
+            letterCount[guess[i]] -= 1 
         else:
             result.append('absent')
+
     return result
 
 @app.route('/api/createGame', methods=['GET'])
