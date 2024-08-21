@@ -3,7 +3,7 @@ WITH scored_games AS (
     FROM games g 
     INNER JOIN wordle_guess w ON w.game_id = g.game_id
     WHERE g.outcome IS NOT NULL
-      AND LENGTH(g.answer) = 5  -- Filter to only include games where the answer is a five-letter word
+      AND LENGTH(g.answer) = 7  -- Filter to only include games where the answer is a five-letter word
     GROUP BY g.game_id, g.user_id, g.start_time, g.end_time
 )
 SELECT u.firstname,

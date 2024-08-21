@@ -17,6 +17,9 @@ from english_words import get_english_words_set
 # Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
 LEADERBOARD_QUERY = open("leaderboard.sql").read()
+LEADERBOARD_QUERY6 = open("leaderboard6.sql").read()
+LEADERBOARD_QUERY7 = open("leaderboard7.sql").read()
+LEADERBOARD_QUERY8 = open("leaderboard8.sql").read()
 WORD_LIST6 = open("wordle_words6.txt").read().splitlines()
 WORD_LIST7 = open("wordle_words7.txt").read().splitlines()
 WORD_LIST8 = open("wordle_words8.txt").read().splitlines()
@@ -215,8 +218,8 @@ def guess():
         if not data or 'guess' not in data:
             return jsonify({"error": "Invalid input"}), 400
         guess = data['guess'].lower()
-        if guess not in ENGLISH_WORDS:
-            return jsonify({"error": "Invalid guess"}), 400
+        # if guess not in ENGLISH_WORDS:
+        #     return jsonify({"error": "Invalid guess"}), 400
         currentGames = Game.query.filter_by(user_id=user.user_id, outcome=None).order_by(Game.game_id.desc()).all()
         currentGame = None
         for game in currentGames:
@@ -297,7 +300,13 @@ def login():
 def leaderboard():
     leaderboardRows = db.session.execute(text(LEADERBOARD_QUERY)).fetchall()
     leaderboard = [{"firstname": row[0], "averageScore": row[1], "averageTime": row[2], "rank": row[3]} for row in leaderboardRows]
-    return jsonify(leaderboard)
+    leaderboardRows6 = db.session.execute(text(LEADERBOARD_QUERY6)).fetchall()
+    leaderboard6 = [{"firstname6": row[0], "averageScore6": row[1], "averageTime6": row[2], "rank6": row[3]} for row in leaderboardRows6]
+    leaderboardRows7 = db.session.execute(text(LEADERBOARD_QUERY7)).fetchall()
+    leaderboard7 = [{"firstname7": row[0], "averageScore7": row[1], "averageTime7": row[2], "rank7": row[3]} for row in leaderboardRows7]
+    leaderboardRows8 = db.session.execute(text(LEADERBOARD_QUERY8)).fetchall()
+    leaderboard8 = [{"firstname8": row[0], "averageScore8": row[1], "averageTime8": row[2], "rank8": row[3]} for row in leaderboardRows8]
+    return jsonify(leaderboard, leaderboard6, leaderboard7, leaderboard8)
 
 @app.route('/', defaults = {'path': ''})
 @app.route('/<path:path>')
