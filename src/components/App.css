@@ -1,5 +1,5 @@
 .content {
-  margin-top: 8%;
+  margin-top: 2%;
 }
 
 html {
@@ -200,6 +200,9 @@ body {
   }
   button:nth-of-type(2) {
     margin-right: 0 !important;
+  }
+  @media screen and (max-width: 768px){
+    width: 80% !important;
   }
 }
 .App-header{
