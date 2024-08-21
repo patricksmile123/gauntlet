@@ -22,6 +22,7 @@ const style = {
 };
 
 function WordleN({user, setWordLength, wordLength, uuid}) {
+    const [showKeyboard, setShowKeyboard] = useState(false);
     const [guess, setGuess] = useState("");
     const [letterData, setResult] = useState([]);
     const [isLoss, setIsLoss] = useState(false)
@@ -134,6 +135,7 @@ function WordleN({user, setWordLength, wordLength, uuid}) {
         console.log("Setting Word Length " + length)
         setWordLength(parseInt(length));
         setDisabled2(true);
+        setShowKeyboard(true);
         createGame(length)
         console.log('Word Length Set')
       };
@@ -286,7 +288,7 @@ function WordleN({user, setWordLength, wordLength, uuid}) {
                 {!isDisabled2 && <button onClick={() => handleSetWordLength(7)} disabled={isDisabled2}>Set Word Length to 7</button>}
                 {!isDisabled2 && <button onClick={() => handleSetWordLength(8)} disabled={isDisabled2}>Set Word Length to 8</button>}
             </header>
-            <Keyboard handleGuess={handleGuess} backspace={backspace} keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
+            <Keyboard showKeyboard={showKeyboard} handleGuess={handleGuess} backspace={backspace} keyDictionary={keyDictionary} onKeyPress={handleKeyPress} />
             <Modal
                 open={showOutcomeModal}
                 onClose={() => setShowOutcomeModal(false)}

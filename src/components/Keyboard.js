@@ -7,7 +7,7 @@ import Key from './Key';
 //   { "key": "E", "state": "GUESSED_WRONG_PLACE" }
 // ]
 
-const Keyboard = ({onKeyPress, keyDictionary, handleGuess, backspace}) => {
+const Keyboard = ({onKeyPress, keyDictionary, handleGuess, backspace, showKeyboard=true}) => {
     const keyPressed = (letter) => () =>{
         console.log("Key Pressed: ", letter);
         onKeyPress(letter);
@@ -18,7 +18,7 @@ const Keyboard = ({onKeyPress, keyDictionary, handleGuess, backspace}) => {
     //     }
     // })
     return ( 
-        <div className="keyboard">
+        <div className="keyboard" style={{display: showKeyboard ? "block" : "none"}}>
             {keyDictionary.map((entry) => <Key letter={entry.key} key={entry.key} onClick={keyPressed(entry.key)} state={entry.state} /> )}
             <Key letter="↵" onClick={handleGuess} state="" />
             <Key letter="⌫" onClick={backspace} state="" />
