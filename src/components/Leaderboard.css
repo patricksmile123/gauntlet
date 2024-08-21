@@ -4,22 +4,11 @@
         margin-top: 2%;
         color: #ffffff;
         font-family: 'Courier New', Courier, monospace;
+        font-weight: 700;
     }
     h2 {
-        font-size: 3rem;
-        margin-top: 2%;
-        color: #ffffff;
-        font-family: 'Courier New', Courier, monospace;
-    }
-    h3 {
-        font-size: 3rem;
-        margin-top: 2%;
-        color: #ffffff;
-        font-family: 'Courier New', Courier, monospace;
-    }
-    h4 {
-        font-size: 3rem;
-        margin-top: 2%;
+        font-size: 2rem;
+        margin-top: 1rem;
         color: #ffffff;
         font-family: 'Courier New', Courier, monospace;
     }
@@ -45,6 +34,15 @@
             font-family: 'Courier New', Courier, monospace;
             padding: 0.5rem;
             border: 2px solid #dbd8e3;
+        }
+        @media screen and (max-width: 768px) {
+            width: 100%;
+            th{
+                font-size: 1rem;
+            }
+            td{
+                font-size: 1rem;
+            }
         }
     }
 }

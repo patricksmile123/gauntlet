@@ -74,3 +74,9 @@
         }
     }
 }
+@media screen and (max-width: 700px) {
+    .loginDiv {
+        width: 90%;
+        left: 1%;
+    }
+}

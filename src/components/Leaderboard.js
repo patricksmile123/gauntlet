@@ -33,12 +33,13 @@ const Leaderboard = ({user}) => {
 
     return (
         <div className="leaderboardDiv">
-            <h1>Leaderboard for 5 letters</h1>
+            <h1>Leaderboards</h1>
+            <h2>Leaderboard for 5 letters</h2>
             <table className="leaderboardTable">
                 <thead>
                     <tr>
                         <th>Rank</th>
-                        <th>Username</th>
+                        <th>Name</th>
                         <th>Average Score</th>
                         <th>Average Time(s)</th>
 
@@ -60,7 +61,7 @@ const Leaderboard = ({user}) => {
                 <thead>
                     <tr>
                         <th>Rank</th>
-                        <th>Username</th>
+                        <th>Name</th>
                         <th>Average Score</th>
                         <th>Average Time(s)</th>
                     </tr>
@@ -76,12 +77,12 @@ const Leaderboard = ({user}) => {
                     ))}
                 </tbody>
             </table>
-            <h3>Leaderboard for 7 letters</h3>
+            <h2>Leaderboard for 7 letters</h2>
             <table className="leaderboardTable">
                 <thead>
                     <tr>
                         <th>Rank</th>
-                        <th>Username</th>
+                        <th>Name</th>
                         <th>Average Score</th>
                         <th>Average Time(s)</th>
                     </tr>
@@ -97,12 +98,12 @@ const Leaderboard = ({user}) => {
                     ))}
                 </tbody>
             </table>
-            <h4>Leaderboard for 8 letters</h4>
+            <h2>Leaderboard for 8 letters</h2>
             <table className="leaderboardTable">
                 <thead>
                     <tr>
                         <th>Rank</th>
-                        <th>Username</th>
+                        <th>Name</th>
                         <th>Average Score</th>
                         <th>Average Time(s)</th>
                     </tr>
