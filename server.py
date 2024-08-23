@@ -14,7 +14,6 @@ import time
 import uuid
 from english_words import get_english_words_set
 
-# Sample word list
 WORD_LIST = open("wordle_words.txt").read().splitlines()
 LEADERBOARD_QUERY = open("leaderboard.sql").read()
 LEADERBOARD_QUERY6 = open("leaderboard6.sql").read()

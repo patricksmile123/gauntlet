@@ -10,7 +10,7 @@ function Signup() {
     const [errors, setErrors] = useState({});
 
     const handleSubmit = async (e) => {
-        e.preventDefault();  // Prevent the default form submission
+        e.preventDefault();
         console.log("Using the handleSubmit function");
         try {
             const response = await fetch('/api/signup', {
@@ -34,7 +34,6 @@ function Signup() {
                 lastname: lastname
             }))
     
-            // Check if the response status is not OK
             if (!response.ok) {
                 const errorData = await response.json();
                 console.log('Error data:', errorData);
@@ -47,7 +46,6 @@ function Signup() {
                 const data = await response.json();
                 console.log('Success:', data);
                 window.location.href = '/login';
-                // Handle success (e.g., redirect to another page or update the UI)
             }
         } catch (error) {
             console.error('An error occurred:', error);

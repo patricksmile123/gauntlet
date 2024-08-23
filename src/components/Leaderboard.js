@@ -15,7 +15,6 @@ const Leaderboard = ({user}) => {
                 const response = await fetch('/api/leaderboard');
                 const data = await response.json();
                 
-                // Assuming the data is an array of arrays
                 const [leaderboard1, leaderboard2, leaderboard3, leaderboard4] = data;
     
                 setLeaderboard1(leaderboard1);
